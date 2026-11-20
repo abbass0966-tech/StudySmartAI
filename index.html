@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#1769d2">
+<title>Study Smart AI</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.9.0/mammoth.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;background:#f3f7fc;color:#17243a;line-height:1.65}header{background:linear-gradient(135deg,#1769d2,#104b9c);color:#fff;padding:20px 14px;text-align:center;box-shadow:0 3px 12px #104b9c25}header h1{font-size:24px;line-height:1.4;letter-spacing:.2px}header p{font-size:13px;opacity:.95;line-height:1.6;margin-top:4px}main{max-width:820px;margin:12px auto;padding:0 11px 30px}.card{background:#fff;border-radius:13px;padding:14px;margin:10px 0;box-shadow:0 3px 12px #17365d12}h2{font-size:18px;margin-bottom:8px;color:#1558ad;line-height:1.5}button{border:0;border-radius:10px;padding:10px 14px;background:#1769d2;color:#fff;font-size:14px;cursor:pointer;line-height:1.5;transition:opacity .2s,transform .2s}button.secondary{background:#e8f1ff;color:#1558ad}button.danger{background:#fff0f0;color:#b42318}button:disabled{opacity:.5;cursor:not-allowed}button:active:not(:disabled){transform:scale(.97)}input[type=file],select{display:block;width:100%;margin:10px 0;padding:10px;border:1px solid #d7e2f0;border-radius:9px;background:#fff}.field{display:block;font-size:14px;font-weight:bold;margin-top:10px}.lesson{border:1px solid #e1eaf5;border-radius:11px;padding:11px;margin:8px 0;background:#fff;transition:border-color .2s,box-shadow .2s}.lesson-title{font-weight:bold;margin-bottom:10px;overflow-wrap:anywhere;word-break:break-word;line-height:1.5}.row{display:flex;gap:8px;flex-wrap:wrap}.small{font-size:12px;color:#64748b;line-height:1.7}#result{white-space:pre-wrap;overflow-wrap:anywhere;margin-top:11px;line-height:1.85;padding:12px;border-radius:10px;background:#f8faff}.hidden{display:none!important}.question{border:1px solid #dce7f5;border-radius:12px;padding:12px;margin:10px 0;background:#fff}.question h3{font-size:16px;margin-bottom:10px}.option{display:flex;gap:9px;align-items:flex-start;padding:10px;border:1px solid #e0e8f2;border-radius:10px;margin:6px 0;cursor:pointer;line-height:1.6;transition:background .2s,border-color .2s}.option input{margin-top:5px}.option:has(input:checked){border-color:#1769d2;background:#eef5ff;box-shadow:0 0 0 1px #1769d220}.correct{background:#eaf8ef!important;border-color:#31a354!important}.wrong{background:#fff0f0!important;border-color:#d92d20!important}.score{font-size:22px;font-weight:bold;color:#1769d2}.badge{display:inline-block;background:#e8f1ff;color:#1558ad;border-radius:20px;padding:3px 10px;font-size:12px}.status{padding:11px;border-radius:10px;background:#f1f5f9;margin-top:9px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7;font-size:13px}.status.error{background:#fff0f0;color:#a11}.status.ok{background:#eaf8ef;color:#176b35}hr{border:0;border-top:1px solid #e7edf5;margin:14px 0}footer{text-align:center;color:#718096;font-size:12px;padding:15px}
+</style></head><body>
+<header><h1>Study Smart AI</h1><p>مساعدك الدراسي الذكي — ارفع محاضرتك، افهمها، واختبر نفسك</p></header>
+<main>
+  <section class="card" id="trackPanel">
+  <h2>اختر تخصصك الدراسي</h2>
+
+  <p class="small">
+    اختر المسار المناسب لك لتخصيص أدوات Study Smart AI حسب تخصصك.
+  </p>
+
+  <div class="row">
+    <button onclick="selectTrack('medicine')">
+      🩺 الطب البشري
+    </button>
+
+    <button class="secondary" onclick="selectTrack('nursing')">
+      👨‍⚕️ التمريض
+    </button>
+  </div>
+
+  <p id="trackStatus" class="small"></p>
+  </section>
+<section class="card"><h2>إضافة محاضرة</h2><p class="small">يدعم ملفات PDF وTXT وPowerPoint (PPT وPPTX) وWord (DOCX) والصور (JPG وPNG) مع استخراج النص عبر OCR. يلزم الإنترنت لتحميل المكتبات واستخدام خدمات Gemini.</p><input id="fileInput" type="file" accept=".pdf,.txt,.pptx,.ppt,.docx,.jpg,.jpeg,.png,application/pdf,text/plain,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/jpeg,image/png"><div id="uploadStatus" class="small" aria-live="polite"></div></section>
+<section class="card">
+  <h2>النسخ الاحتياطي واستعادة البيانات</h2>
+
+  <p class="small">
+    احفظ جميع محاضراتك ونتائج امتحاناتك، واستعد بياناتك عند الحاجة.
+  </p>
+
+  <div class="row">
+    <button onclick="exportBackup()">
+      إنشاء نسخة احتياطية
+    </button>
+
+    <button class="secondary"
+      onclick="document.getElementById('backupFileInput').click()">
+      استعادة نسخة احتياطية
+    </button>
+  </div>
+
+  <input
+    id="backupFileInput"
+    type="file"
+    accept=".json,application/json"
+    style="display:none"
+    onchange="if(this.files[0]) restoreBackup(this.files[0]); this.value=''"
+  >
+</section>
+  <section class="card"><h2>محاضراتي</h2><div id="lessons"><p class="small">لا توجد محاضرات بعد.</p></div></section>
+<section id="studyPanel" class="card hidden"><h2 id="currentTitle">المحاضرة</h2><div class="row"><button class="secondary" onclick="showContent()">عرض النص المستخرج</button></div><hr><h2>إعدادات الذكاء الاصطناعي</h2><label class="field" for="language">لغة الناتج</label><select id="language"><option value="Arabic">العربية</option><option value="English">English</option></select><label class="field" for="difficulty">مستوى الامتحان</label><select id="difficulty"><option value="Easy">سهل</option><option value="Medium" selected>متوسط</option><option value="Hard">صعب</option></select><label class="field" for="questionCount">عدد الأسئلة</label><select id="questionCount"><option>5</option><option selected>10</option><option>15</option><option>20</option></select><hr><div class="row"><button id="summaryBtn" onclick="runAI('summary')">تلخيص بالذكاء الاصطناعي</button><button id="explainBtn" class="secondary" onclick="runAI('explain')">شرح المحاضرة</button><button id="examBtn" class="secondary" onclick="generateAIExam()">إنشاء امتحان من المحاضرة</button><button id="comprehensiveExamBtn" onclick="generateComprehensiveExam()">إنشاء امتحان شامل</button></div><div id="result" aria-live="polite"></div><div id="aiStatus" class="status hidden" aria-live="polite"></div></section>
+<section id="examPanel" class="card hidden"><h2>امتحان المحاضرة <span class="badge">MCQ</span></h2><p id="examNote" class="small">اختر إجابة واحدة لكل سؤال، ثم اضغط على التصحيح.</p><div id="questionCounter" class="badge">السؤال 1 من 10</div>
+<div id="examTimer" class="badge">الوقت: 00:00</div>
+<div id="examQuestions"></div>
+<div class="row">
+<button id="prevQuestion" class="secondary" onclick="changeQuestion(-1)">السابق</button>
+<button id="nextQuestion" onclick="changeQuestion(1)">التالي</button>
+<button id="submitExam" onclick="gradeExam()">إنهاء الامتحان وتصحيح الإجابات</button>
+<button class="secondary" onclick="closeExam()">إغلاق</button>
+</div><div id="examResult"></div></section>
+<!-- إحصائيات الأداء -->
+<section class="card" id="statisticsPanel">
+  <h2>إحصائيات الأداء 📊</h2>
+
+  <div class="lesson">
+    <p>عدد الامتحانات</p>
+    <h2 id="totalExams">0</h2>
+  </div>
+
+  <div class="lesson">
+    <p>متوسط الدرجات</p>
+    <h2 id="averageScore">0%</h2>
+  </div>
+
+  <div class="lesson">
+  <p>أعلى درجة</p>
+  <h2 id="highestScore">0%</h2>
+</div>
+
+<hr>
+
+<h3>تطور المستوى الدراسي 📈</h3>
+
+<div style="width:100%; overflow:hidden;">
+  <canvas id="progressChart" height="220"></canvas>
+</div>
+
+<div class="lesson" style="margin-top:15px;">
+  <h3>مقارنة آخر 5 امتحانات</h3>
+  <p id="performanceComparison">
+    لم تتوفر بيانات كافية للمقارنة.
+  </p>
+</div>
+
+  <div class="lesson">
+    <p>نسبة النجاح</p>
+    <h2 id="successRate">0%</h2>
+  </div>
+</section>
+<!-- سجل الامتحانات -->
+<section id="historyPanel" class="card">
+  <h2>سجل الامتحانات</h2>
+  <div id="examHistoryList">
+  <p class="small">جارٍ تحميل سجل الامتحانات...</p>
+</div>
+
+<hr>
+
+<div id="pastExamReview"></div>
+</section>
+
+</main>
+<footer>Study Smart AI — نسخة تجريبية قيد التطوير</footer>
+<script>
+if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+// عنوان Cloudflare Worker. مفتاح Gemini يبقى محفوظاً داخل Cloudflare ولا يوضع هنا.
+const WORKER_URL='https://fancy-wood-bb0f.abbass0966.workers.dev';
+const MAX_TEXT_CHARS = 1000;
+let lessons=[];let contents={};try{lessons=JSON.parse(localStorage.getItem('studyLessons')||'[]')}catch(e){}try{contents=JSON.parse(localStorage.getItem('studyContents')||'{}')}catch(e){}
+let selectedLesson=null,currentQuestions=[],examGraded=false;
+  let selectedTrack = localStorage.getItem('studyTrack') || '';
+
+function selectTrack(track){
+
+  if(track !== 'medicine' && track !== 'nursing'){
+    return;
+  }
+
+  selectedTrack = track;
+
+  localStorage.setItem('studyTrack', track);
+
+  document.getElementById('trackStatus').textContent =
+    track === 'medicine'
+    ? 'التخصص المختار: الطب البشري 🩺'
+    : 'التخصص المختار: التمريض 👨‍⚕️';
+}
+
+function loadSelectedTrack(){
+
+  if(selectedTrack){
+    selectTrack(selectedTrack);
+  }
+}
+
+loadSelectedTrack();
+function saveData(){try{localStorage.setItem('studyLessons',JSON.stringify(lessons));localStorage.setItem('studyContents',JSON.stringify(contents))}catch(e){showMessage('مساحة التخزين قد تكون ممتلئة. جرّب ملفاً أصغر أو احذف محاضرات قديمة.')}}
+  function exportBackup(){
+  try{
+    const backup = {
+      app: 'Study Smart AI',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      studyLessons: lessons,
+      studyContents: contents,
+      examHistory: JSON.parse(
+        localStorage.getItem('examHistory') || '[]'
+      )
+    };
+
+    const blob = new Blob(
+      [JSON.stringify(backup, null, 2)],
+      {type: 'application/json'}
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = url;
+    link.download = 'StudySmartAI_Backup_' +
+      new Date().toISOString().slice(0,10) + '.json';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+
+    showMessage('تم إنشاء النسخة الاحتياطية بنجاح.');
+
+  }catch(error){
+    showMessage('تعذر إنشاء النسخة الاحتياطية: ' + error.message);
+  }
+  }
+  async function restoreBackup(file){
+  try{
+    const backup = JSON.parse(await file.text());
+
+    if(
+  backup.app !== 'Study Smart AI' ||
+
+  !Array.isArray(backup.studyLessons) ||
+
+  !backup.studyLessons.every(
+    name => typeof name === 'string'
+  ) ||
+
+  !backup.studyContents ||
+  typeof backup.studyContents !== 'object' ||
+  Array.isArray(backup.studyContents) ||
+
+  !Object.values(backup.studyContents).every(
+    text => typeof text === 'string'
+  ) ||
+
+  !Array.isArray(backup.examHistory) ||
+
+  !backup.examHistory.every(
+    record =>
+      record &&
+      typeof record === 'object' &&
+      Array.isArray(record.questions) &&
+      Array.isArray(record.answers)
+  )
+){
+  throw new Error('ملف النسخة الاحتياطية غير صالح أو يحتوي على بيانات غير مكتملة.');
+  }
+
+    if(!confirm('سيتم استبدال البيانات الحالية ببيانات النسخة الاحتياطية. سيتم تنزيل نسخة من بياناتك الحالية أولاً. هل تريد المتابعة؟')){
+  return;
+}
+
+exportBackup();
+
+    const oldLessons = localStorage.getItem('studyLessons');
+const oldContents = localStorage.getItem('studyContents');
+const oldHistory = localStorage.getItem('examHistory');
+
+try{
+
+  localStorage.setItem(
+    'studyLessons',
+    JSON.stringify(backup.studyLessons)
+  );
+
+  localStorage.setItem(
+    'studyContents',
+    JSON.stringify(backup.studyContents)
+  );
+
+  localStorage.setItem(
+    'examHistory',
+    JSON.stringify(backup.examHistory)
+  );
+
+  lessons = backup.studyLessons;
+  contents = backup.studyContents;
+
+  renderLessons();
+  renderExamHistory();
+  renderStatistics();
+
+}catch(error){
+
+  try{
+
+    if(oldLessons === null){
+      localStorage.removeItem('studyLessons');
+    }else{
+      localStorage.setItem('studyLessons',oldLessons);
+    }
+
+    if(oldContents === null){
+      localStorage.removeItem('studyContents');
+    }else{
+      localStorage.setItem('studyContents',oldContents);
+    }
+
+    if(oldHistory === null){
+      localStorage.removeItem('examHistory');
+    }else{
+      localStorage.setItem('examHistory',oldHistory);
+    }
+
+    lessons = JSON.parse(oldLessons || '[]');
+    contents = JSON.parse(oldContents || '{}');
+
+    renderLessons();
+    renderExamHistory();
+    renderStatistics();
+
+  }catch(rollbackError){
+    console.error('تعذر التراجع عن الاستعادة:',rollbackError);
+  }
+
+  throw new Error('فشلت الاستعادة، وتمت محاولة إرجاع البيانات السابقة.');
+  }
+
+    showMessage('تمت استعادة النسخة الاحتياطية بنجاح.');
+
+  }catch(error){
+    showMessage('تعذرت استعادة النسخة الاحتياطية: ' + error.message);
+  }
+  }
+function renderLessons(){const box=document.getElementById('lessons');if(!lessons.length){box.innerHTML='<p class="small">لا توجد محاضرات بعد.</p>';return}box.innerHTML='';lessons.forEach((lesson,index)=>{const item=document.createElement('div');item.className='lesson';const title=document.createElement('div');title.className='lesson-title';title.textContent=lesson;const actions=document.createElement('div');actions.className='row';const open=document.createElement('button');open.textContent='فتح';open.onclick=()=>openLesson(index);const del=document.createElement('button');del.textContent='حذف';del.className='danger';del.onclick=()=>deleteLesson(index);actions.append(open,del);item.append(title,actions);box.append(item)})}
+function showMessage(m){document.getElementById('uploadStatus').textContent=m}function setAIStatus(m,type){const el=document.getElementById('aiStatus');el.textContent=m;el.classList.remove('hidden','error','ok');if(type)el.classList.add(type)}
+async function readPDF(file){
+if(!window.pdfjsLib){
+throw new Error('مكتبة PDF لم تُحمّل. تأكد من الإنترنت وأعد فتح التطبيق.');
+}
+
+const data = new Uint8Array(await file.arrayBuffer());
+const pdf = await pdfjsLib.getDocument({data}).promise;
+
+let pages = [];
+
+for(let n = 1; n <= pdf.numPages; n++){
+const page = await pdf.getPage(n);
+const content = await page.getTextContent();
+
+let pageText = content.items
+  .map(x => x.str)
+  .join(' ')
+  .trim();
+
+if(!pageText){
+  if(typeof Tesseract === 'undefined'){
+    throw new Error('ملف PDF مصوّر ويحتاج إلى مكتبة OCR.');
+  }
+
+  const viewport = page.getViewport({scale: 2});
+  const canvas = document.createElement('canvas');
+  const context = canvas.getContext('2d');
+
+  canvas.width = viewport.width;
+  canvas.height = viewport.height;
+
+  await page.render({
+    canvasContext: context,
+    viewport: viewport
+  }).promise;
+
+  const result = await Tesseract.recognize(
+    canvas,
+    'ara+eng'
+  );
+
+  pageText = result.data.text.trim();
+}
+
+pages.push(pageText);
+
+}
+
+return pages.join('\n').trim();
+  }
+async function readPPTX(file){
+  if(typeof JSZip === 'undefined'){
+    throw new Error('مكتبة PowerPoint لم تُحمّل. تأكد من الإنترنت.');
+  }
+
+  const zip = await JSZip.loadAsync(file);
+  const slideFiles = Object.keys(zip.files)
+    .filter(name => /^ppt\/slides\/slide\d+\.xml$/.test(name))
+    .sort((a,b)=>{
+      const na = Number(a.match(/slide(\d+)/)[1]);
+      const nb = Number(b.match(/slide(\d+)/)[1]);
+      return na - nb;
+    });
+
+  if(!slideFiles.length){
+    throw new Error('لم يتم العثور على شرائح في الملف.');
+  }
+
+  const slides = [];
+
+  for(let i=0;i<slideFiles.length;i++){
+    const xml = await zip.files[slideFiles[i]].async('text');
+    const doc = new DOMParser().parseFromString(xml,'text/xml');
+
+    const paragraphs = [...doc.getElementsByTagName('a:p')];
+
+    const text = paragraphs.map(p =>
+      [...p.getElementsByTagName('a:t')]
+        .map(t=>t.textContent)
+        .join('')
+    ).filter(Boolean).join('\n');
+
+    slides.push(
+      'الشريحة ' + (i+1) + '\n' + text
+    );
+  }
+
+  return slides.join('\n\n━━━━━━━━━━━━━━\n\n').trim();
+}
+  async function readPPT(file){
+  try{
+    const { toMarkdown } = await import(
+      'https://esm.sh/@mdgate/ppt@0.6.25'
+    );
+
+    const bytes = new Uint8Array(
+      await file.arrayBuffer()
+    );
+
+    const text = await toMarkdown(bytes);
+
+    if(!text || !text.trim()){
+      throw new Error('لم يتم العثور على نص داخل ملف PPT.');
+    }
+
+    return text.trim();
+
+  }catch(error){
+    throw new Error(
+      'تعذرت قراءة ملف PowerPoint القديم: ' + error.message
+    );
+  }
+  }
+  async function readDOCX(file){
+if(typeof mammoth === 'undefined'){
+throw new Error('مكتبة Word لم تُحمّل. تأكد من الإنترنت.');
+}
+
+const arrayBuffer = await file.arrayBuffer();
+
+const result = await mammoth.extractRawText({
+arrayBuffer: arrayBuffer
+});
+
+const text = result.value.trim();
+
+if(!text){
+throw new Error('لم يتم العثور على نص داخل ملف Word.');
+}
+
+return text;
+  }
+  async function readImage(file){
+  if(typeof Tesseract === 'undefined'){
+    throw new Error('مكتبة OCR لم تُحمّل. تأكد من الإنترنت.');
+  }
+
+  const result = await Tesseract.recognize(
+    file,
+    'ara+eng'
+  );
+
+  const text = result.data.text.trim();
+
+  if(!text){
+    throw new Error('لم يتم العثور على نص واضح داخل الصورة.');
+  }
+
+  return text;
+                                            }
+  document.getElementById('fileInput').addEventListener('change', async function(e) {
+  const file = e.target.files[0];
+    if (!file) return;
+    if(file.size > 25 * 1024 * 1024){
+  showMessage('حجم الملف كبير جداً. الحد الأقصى المسموح به هو 25 MB.');
+  this.value = '';
+  return;
+  }
+if(file.size === 0){
+  showMessage('الملف فارغ، اختر ملفاً يحتوي على بيانات.');
+  this.value = '';
+  return;
+  }
+  showMessage('جارٍ قراءة الملف...');
+
+  try {
+    let text = '';
+    const name = file.name.toLowerCase();
+
+    if (name.endsWith('.pdf')) {
+      text = await readPDF(file);
+    } else if (name.endsWith('.txt')) {
+      text = await file.text();
+    } else if (name.endsWith('.pptx')) {
+  text = await readPPTX(file);
+} else if (name.endsWith('.ppt')) {
+  text = await readPPT(file);
+} else if (name.endsWith('.docx')) {
+  text = await readDOCX(file);
+} else if (
+  name.endsWith('.jpg') ||
+  name.endsWith('.jpeg') ||
+  name.endsWith('.png')
+) {
+  text = await readImage(file);
+} else {
+  throw new Error('نوع الملف غير مدعوم.');
+    }
+
+    if (!text.trim()) {
+      throw new Error('لم يتم العثور على نص داخل الملف.');
+    }
+
+    if (lessons.includes(file.name)) {
+      if (!confirm('توجد محاضرة بالاسم نفسه. هل تريد استبدال محتواها؟')) {
+        showMessage('تم إلغاء الإضافة.');
+        return;
+      }
+      contents[file.name] = text;
+    } else {
+      lessons.push(file.name);
+      contents[file.name] = text;
+    }
+
+    saveData();
+    renderLessons();
+    showMessage('تمت إضافة المحاضرة واستخراج النص بنجاح.');
+
+  } catch (err) {
+    showMessage('تعذرت قراءة الملف: ' + err.message);
+  }
+
+  this.value = '';
+});
+function openLesson(i){selectedLesson=lessons[i];document.getElementById('currentTitle').textContent=selectedLesson;document.getElementById('studyPanel').classList.remove('hidden');document.getElementById('examPanel').classList.add('hidden');document.getElementById('result').textContent='';document.getElementById('aiStatus').classList.add('hidden');document.getElementById('studyPanel').scrollIntoView({behavior:'smooth'})}
+function deleteLesson(i){const name=lessons[i];if(!confirm('هل تريد حذف هذه المحاضرة؟'))return;lessons.splice(i,1);delete contents[name];saveData();renderLessons();if(selectedLesson===name){selectedLesson=null;document.getElementById('studyPanel').classList.add('hidden')}}
+function showContent(){if(selectedLesson)document.getElementById('result').textContent=contents[selectedLesson]||'لا يوجد محتوى محفوظ.'}
+function getSelectedText(){
+  if(!selectedLesson || !contents[selectedLesson]){
+    throw new Error('افتح محاضرة أولاً.');
+  }
+
+  const t = contents[selectedLesson].trim();
+
+  if(!t){
+    throw new Error('لا يوجد نص محفوظ.');
+  }
+
+  return {
+    text: t,
+    warning: ''
+  };
+}
+function splitTextIntoChunks(text, maxChars = 8000) {
+  const chunks = [];
+  let start = 0;
+
+  while (start < text.length) {
+    let end = Math.min(start + maxChars, text.length);
+
+    if (end < text.length) {
+      const newline = text.lastIndexOf('\n', end);
+      const space = text.lastIndexOf(' ', end);
+
+      const cut = Math.max(newline, space);
+
+      if (cut > start + maxChars * 0.7) {
+        end = cut;
+      }
+    }
+
+    const chunk = text.slice(start, end).trim();
+
+    if (chunk) {
+      chunks.push(chunk);
+    }
+
+    start = end;
+  }
+
+  return chunks;
+}
+async function callWorker(action) {
+const selected = getSelectedText();
+const chunks = splitTextIntoChunks(selected.text, 3000);
+
+if (!chunks.length) {
+throw new Error('لا يوجد محتوى لتحليله.');
+}
+
+const language = document.getElementById('language').value;
+const difficulty = document.getElementById('difficulty').value;
+const totalCount = Number(
+document.getElementById('questionCount').value
+);
+
+async function sendChunk(text, count) {
+const response = await fetch(WORKER_URL, {
+method: 'POST',
+headers: {
+'Content-Type': 'text/plain'
+},
+body: JSON.stringify({
+  action,
+  track: selectedTrack,
+  text,
+  language,
+  count,
+  difficulty
+})
+});
+
+let data;
+
+try {
+  data = await response.json();
+} catch (e) {
+  throw new Error('وصل رد غير مفهوم من الخادم.');
+}
+
+if (!response.ok || data.error || data.success === false) {
+  throw new Error(
+    data.details || data.error || data.message ||
+    ('خطأ بالخادم: ' + response.status)
+  );
+}
+
+if (data.result === undefined) {
+  throw new Error('الخادم لم يُرجع نتيجة متوقعة.');
+}
+
+return data.result;
+
+}
+
+if (action === 'summary' || action === 'explain') {
+const results = [];
+
+for (let i = 0; i < chunks.length; i++) {
+  setAIStatus(
+    'جارٍ تحليل الجزء ' + (i + 1) +
+    ' من ' + chunks.length + '...'
+  );
+
+  const result = await sendChunk(chunks[i], 10);
+  results.push(String(result));
+
+  if (i < chunks.length - 1) {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+}
+
+return {
+  data: {
+    success: true,
+    action,
+    result: results.join('\n\n━━━━━━━━━━━━━━\n\n')
+  },
+  warning: 'تم تحليل المحاضرة كاملة عبر ' +
+    chunks.length + ' أجزاء.'
+};
+
+}
+
+if (action === 'exam' || action === 'quiz') {
+
+  const selectedText = chunks.join('\n\n').slice(0, 20000);
+
+  setAIStatus('جارٍ إنشاء الأسئلة...');
+
+  const result = await sendChunk(selectedText, totalCount);
+
+  const parsed = typeof result === 'object'
+    ? result
+    : extractJSON(result);
+
+  const arr = Array.isArray(parsed)
+    ? parsed
+    : parsed.questions;
+
+  if (!Array.isArray(arr) || !arr.length) {
+    throw new Error('تعذر قراءة أسئلة الامتحان.');
+  }
+
+  return {
+    data: {
+      success: true,
+      action,
+      result: JSON.stringify({
+        questions: arr.slice(0, totalCount)
+      })
+    },
+    warning: 'تم إنشاء الامتحان في طلب واحد.'
+  };
+
+}
+
+throw new Error('نوع العملية غير مدعوم.');
+  }
+
+function toggleButtons(disabled){
+  ['summaryBtn','explainBtn','examBtn','comprehensiveExamBtn'].forEach(id=>{
+    const btn = document.getElementById(id);
+    if(btn) btn.disabled = disabled;
+  });
+}
+async function runAI(action){toggleButtons(true);document.getElementById('result').textContent='';setAIStatus('جارٍ إرسال المحاضرة إلى Gemini...');try{const {data,warning}=await callWorker(action);document.getElementById('result').textContent=typeof data.result==='string'?data.result:JSON.stringify(data.result,null,2);setAIStatus((warning?warning+'\n':'')+'اكتملت العملية بنجاح.','ok')}catch(err){setAIStatus('تعذر إكمال العملية: '+err.message,'error')}finally{toggleButtons(false)}}
+function extractJSON(s){let t=String(s).trim().replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'');try{return JSON.parse(t)}catch(e){}const a=t.indexOf('{'),b=t.lastIndexOf('}');if(a>=0&&b>a){try{return JSON.parse(t.slice(a,b+1))}catch(e){}}throw new Error('وصلت الأسئلة كنص عادي وليست JSON. نحتاج ضبط صيغة رد Worker أولاً.')}
+async function generateAIExam(){toggleButtons(true);document.getElementById('result').textContent='';setAIStatus('جارٍ إنشاء أسئلة من محتوى المحاضرة...');try{const {data,warning}=await callWorker('exam');document.getElementById('result').textContent=typeof data.result==='string'?data.result:JSON.stringify(data.result,null,2);const parsed=typeof data.result==='object'?data.result:extractJSON(data.result);const arr=Array.isArray(parsed)?parsed:parsed.questions;if(!Array.isArray(arr)||!arr.length)throw new Error('لم أجد قائمة أسئلة في رد Gemini.');currentQuestions=arr.map(q=>{const opts=q.options||q.o||q.choices;let ans=q.answer??q.a??q.correctAnswer??q.correct;if(typeof ans==='string'&&/^[A-D]$/i.test(ans.trim()))ans=ans.trim().toUpperCase().charCodeAt(0)-65;return{q:String(q.question||q.q||''),o:Array.isArray(opts)?opts.map(String):[],a:Number(ans),e:String(q.explanation||q.e||'')}}).filter(q=>q.q&&q.o.length>=2&&Number.isInteger(q.a)&&q.a>=0&&q.a<q.o.length);if(!currentQuestions.length)throw new Error('تنسيق الأسئلة غير مكتمل. سنضبط صيغة رد Worker في الخطوة التالية.');renderExam();setAIStatus((warning?warning+'\n':'')+'تم إنشاء '+currentQuestions.length+' سؤالاً من المحاضرة.','ok');document.getElementById('examPanel').classList.remove('hidden');document.getElementById('examPanel').scrollIntoView({behavior:'smooth'})}catch(err){setAIStatus('تعذر إنشاء الامتحان: '+err.message,'error')}finally{toggleButtons(false)}}
+async function generateComprehensiveExam(){
+  toggleButtons(true);
+  document.getElementById('result').textContent = '';
+  setAIStatus('جارٍ تجهيز جميع المحاضرات لإنشاء الامتحان الشامل...');
+
+  try{
+    if(!lessons.length){
+      throw new Error('لا توجد محاضرات محفوظة. أضف محاضرات أولاً.');
+    }
+
+    const allChunks = [];
+
+    lessons.forEach(lesson=>{
+      const text = contents[lesson];
+
+      if(text && text.trim()){
+        const parts = splitTextIntoChunks(
+          'عنوان المحاضرة: ' + lesson + '\n' + text,
+          3000
+        );
+
+        parts.forEach(part=>{
+          allChunks.push({
+            lesson: lesson,
+            text: part
+          });
+        });
+      }
+    });
+
+    if(!allChunks.length){
+      throw new Error('لا توجد نصوص محفوظة في المحاضرات.');
+    }
+
+    const language = document.getElementById('language').value;
+    const difficulty = document.getElementById('difficulty').value;
+    const totalCount = Number(
+      document.getElementById('questionCount').value
+    );
+
+    const selectedIndexes = [];
+
+    const lectureNames = [...new Set(
+      allChunks.map(item=>item.lesson)
+    )];
+
+    lectureNames.forEach(name=>{
+      const index = allChunks.findIndex(
+        item=>item.lesson === name
+      );
+
+      if(index >= 0) selectedIndexes.push(index);
+    });
+
+    const targetChunks = Math.min(
+      allChunks.length,
+      Math.max(totalCount, selectedIndexes.length)
+    );
+
+    const remaining = allChunks
+      .map((item,index)=>index)
+      .filter(index=>!selectedIndexes.includes(index));
+
+    const needed = targetChunks - selectedIndexes.length;
+
+    for(let i=0;i<needed;i++){
+      const position = Math.floor(
+        i * (remaining.length - 1) / Math.max(1, needed - 1)
+      );
+
+      selectedIndexes.push(remaining[position]);
+    }
+
+    selectedIndexes.sort((a,b)=>a-b);
+
+    const questions = [];
+    const actualCount = Math.max(
+      totalCount,
+      selectedIndexes.length
+    );
+
+    const baseCount = Math.floor(
+      actualCount / selectedIndexes.length
+    );
+
+    const remainder = actualCount % selectedIndexes.length;
+
+    for(let i=0;i<selectedIndexes.length;i++){
+
+      const count = baseCount + (i < remainder ? 1 : 0);
+      const chunk = allChunks[selectedIndexes[i]];
+
+      setAIStatus(
+        'جارٍ إنشاء الامتحان الشامل من الجزء ' +
+        (i+1) + ' من ' + selectedIndexes.length +
+        '\nالمحاضرة: ' + chunk.lesson
+      );
+
+      const response = await fetch(WORKER_URL,{
+        method:'POST',
+        headers:{
+          'Content-Type':'text/plain'
+        },
+        body:JSON.stringify({
+          action:'exam',
+          text:chunk.text,
+          language:language,
+          count:count,
+          difficulty:difficulty
+        })
+      });
+
+      let data;
+
+      try{
+        data = await response.json();
+      }catch(e){
+        throw new Error('وصل رد غير مفهوم من الخادم.');
+      }
+
+      if(!response.ok || data.error || data.success === false){
+        throw new Error(
+          data.details || data.error || data.message ||
+          ('خطأ بالخادم: ' + response.status)
+        );
+      }
+
+      if(data.result === undefined){
+        throw new Error('الخادم لم يُرجع أسئلة.');
+      }
+
+      const parsed = typeof data.result === 'object'
+        ? data.result
+        : extractJSON(data.result);
+
+      const arr = Array.isArray(parsed)
+        ? parsed
+        : parsed.questions;
+
+      if(!Array.isArray(arr)){
+        throw new Error('تعذر قراءة أسئلة المحاضرة: ' + chunk.lesson);
+      }
+
+      questions.push(...arr.map(q=>({
+  ...q,
+  _sourceLesson: chunk.lesson
+})));
+
+      if(i < selectedIndexes.length - 1){
+        await new Promise(resolve=>setTimeout(resolve,1000));
+      }
+    }
+
+    currentQuestions = questions.map(q=>{
+      const opts = q.options || q.o || q.choices;
+
+      let ans = q.answer ?? q.a ?? q.correctAnswer ?? q.correct;
+
+      if(typeof ans === 'string' && /^[A-D]$/i.test(ans.trim())){
+        ans = ans.trim().toUpperCase().charCodeAt(0)-65;
+      }
+
+      return {
+        q:String(q.question || q.q || ''),
+        o:Array.isArray(opts) ? opts.map(String) : [],
+        a:Number(ans),
+        e:String(q.explanation || q.e || ''),
+        sourceLesson: q._sourceLesson || 'غير محددة'
+      };
+    }).filter(q=>
+      q.q &&
+      q.o.length >= 2 &&
+      Number.isInteger(q.a) &&
+      q.a >= 0 &&
+      q.a < q.o.length
+    ).slice(0,actualCount);
+
+    if(!currentQuestions.length){
+      throw new Error('لم يتم إنشاء أسئلة صالحة.');
+    }
+
+    document.getElementById('examNote').textContent =
+      'امتحان شامل من جميع المحاضرات المحفوظة.';
+
+    renderExam();
+
+    document.getElementById('examPanel').classList.remove('hidden');
+
+    document.getElementById('result').textContent =
+      'تم إنشاء الامتحان الشامل بنجاح.';
+
+    setAIStatus(
+      'تم إنشاء ' + currentQuestions.length +
+      ' سؤالاً من ' + lectureNames.length +
+      ' محاضرة بنجاح.',
+      'ok'
+    );
+
+    document.getElementById('examPanel').scrollIntoView({
+      behavior:'smooth'
+    });
+
+  }catch(err){
+    setAIStatus(
+      'تعذر إنشاء الامتحان الشامل: ' + err.message,
+      'error'
+    );
+  }finally{
+    toggleButtons(false);
+  }
+      }
+  let currentQuestionIndex = 0;
+let examTime = 20 * 60;
+let examTimerInterval = null;
+function startExamTimer(){
+  clearInterval(examTimerInterval);
+
+  examTime = 20 * 60;
+
+  function updateTimer(){
+    const minutes = Math.floor(examTime / 60);
+    const seconds = examTime % 60;
+
+    document.getElementById('examTimer').textContent =
+      'الوقت المتبقي: ' +
+      String(minutes).padStart(2,'0') + ':' +
+      String(seconds).padStart(2,'0');
+
+    if(examTime <= 0){
+      clearInterval(examTimerInterval);
+      gradeExam();
+      alert('انتهى وقت الامتحان!');
+      return;
+    }
+
+    examTime--;
+  }
+
+  updateTimer();
+  examTimerInterval = setInterval(updateTimer,1000);
+}  
+function renderExam(){
+  examGraded = false;
+  currentQuestionIndex = 0;
+
+  document.getElementById('examResult').innerHTML = '';
+  document.getElementById('submitExam').disabled = false;
+  document.getElementById('examQuestions').innerHTML = '';
+
+  currentQuestions.forEach((q,i)=>{
+    const card = document.createElement('div');
+    card.className = 'question';
+    card.id = 'question'+i;
+
+    const h = document.createElement('h3');
+    h.textContent = (i+1)+'. '+q.q;
+    card.append(h);
+
+    q.o.forEach((op,j)=>{
+      const label = document.createElement('label');
+      label.className = 'option';
+      label.id = 'opt'+i+'_'+j;
+
+      const radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.name = 'q'+i;
+      radio.value = j;
+
+      const span = document.createElement('span');
+      span.textContent = op;
+
+      label.append(radio,span);
+      card.append(label);
+    });
+
+    document.getElementById('examQuestions').append(card);
+  });
+
+  showQuestion();
+  startExamTimer();
+}
+
+function showQuestion(){
+  currentQuestions.forEach((q,i)=>{
+    document.getElementById('question'+i).classList.toggle(
+      'hidden', i !== currentQuestionIndex
+    );
+  });
+
+  document.getElementById('questionCounter').textContent =
+    'السؤال '+(currentQuestionIndex+1)+' من '+currentQuestions.length;
+
+  document.getElementById('prevQuestion').disabled =
+    currentQuestionIndex === 0;
+
+  document.getElementById('nextQuestion').disabled =
+    currentQuestionIndex === currentQuestions.length-1;
+}
+
+function changeQuestion(direction){
+  const next = currentQuestionIndex + direction;
+
+  if(next < 0 || next >= currentQuestions.length) return;
+
+  currentQuestionIndex = next;
+  showQuestion();
+}
+function gradeExam(){
+  clearInterval(examTimerInterval);
+
+  if(examGraded || !currentQuestions.length) return;
+
+  let score = 0;
+  let unanswered = 0;
+  const answers = [];
+
+  currentQuestions.forEach((q,i)=>{
+    const selected = document.querySelector(
+      'input[name="q'+i+'"]:checked'
+    );
+
+    const selectedAnswer = selected
+      ? Number(selected.value)
+      : null;
+
+    answers.push(selectedAnswer);
+
+    if(selectedAnswer === null){
+      unanswered++;
+    }else if(selectedAnswer === q.a){
+      score++;
+    }
+
+    q.o.forEach((_,j)=>{
+      const label = document.getElementById('opt'+i+'_'+j);
+
+      if(j === q.a) label.classList.add('correct');
+
+      if(selectedAnswer === j && j !== q.a){
+        label.classList.add('wrong');
+      }
+    });
+
+    if(q.e){
+      const p = document.createElement('p');
+      p.className = 'small';
+      p.style.marginTop = '8px';
+      p.textContent = 'التفسير: '+q.e;
+
+      document.getElementById('question'+i).append(p);
+    }
+  });
+
+  const pct = Math.round(
+    score / currentQuestions.length * 100
+  );
+
+  document.getElementById('examResult').innerHTML =
+    '<p class="score">نتيجتك: '+score+' من '+
+    currentQuestions.length+' ('+pct+'%)</p>'+
+    '<p>الإجابات غير المجابة: '+unanswered+'</p>';
+  // تقرير الأداء حسب المحاضرة
+  if(currentQuestions.some(q=>q.sourceLesson)){
+
+    const groups = {};
+
+    currentQuestions.forEach((q,i)=>{
+      const name = q.sourceLesson || 'غير محددة';
+
+      if(!groups[name]){
+        groups[name] = {
+          total: 0,
+          correct: 0
+        };
+      }
+
+      groups[name].total++;
+
+      if(answers[i] === q.a){
+        groups[name].correct++;
+      }
+    });
+
+    const report = document.createElement('div');
+    report.className = 'lesson';
+    report.style.marginTop = '15px';
+
+    const heading = document.createElement('h3');
+    heading.textContent = '📊 تقرير أدائك حسب المحاضرات';
+    report.append(heading);
+
+    Object.keys(groups).forEach(name=>{
+
+      const item = groups[name];
+      const percentage = Math.round(
+        item.correct / item.total * 100
+      );
+
+      const section = document.createElement('div');
+      section.style.marginTop = '12px';
+
+      const title = document.createElement('strong');
+      title.textContent = name;
+
+      const details = document.createElement('p');
+      details.textContent =
+        'الإجابات الصحيحة: ' + item.correct +
+        ' من ' + item.total +
+        ' (' + percentage + '%)';
+
+      const advice = document.createElement('p');
+      advice.className = 'small';
+
+      if(percentage >= 80){
+        advice.textContent = 'ممتاز! أتقنت هذه المحاضرة.';
+      }else if(percentage >= 50){
+        advice.textContent = 'مستواك متوسط، تحتاج إلى مراجعة بعض الأجزاء.';
+      }else{
+        advice.textContent = 'تحتاج إلى مراجعة هذه المحاضرة جيداً.';
+      }
+
+      section.append(title,details,advice);
+      report.append(section);
+    });
+
+    document.getElementById('examResult').append(report);
+        }
+  // حفظ نتيجة الامتحان
+  const examRecord = {
+    id: Date.now(),
+    lesson: selectedLesson || 'امتحان',
+    date: new Date().toLocaleString('ar'),
+    score: score,
+    total: currentQuestions.length,
+    percentage: pct,
+    unanswered: unanswered,
+    answers: answers,
+    questions: currentQuestions
+  };
+
+  try{
+    const history = JSON.parse(
+      localStorage.getItem('examHistory') || '[]'
+    );
+
+    history.unshift(examRecord);
+
+    localStorage.setItem(
+      'examHistory',
+      JSON.stringify(history)
+    );
+
+    console.log('تم حفظ نتيجة الامتحان بنجاح');
+    renderExamHistory();
+    renderStatistics();
+  }catch(error){
+    console.error('تعذر حفظ الامتحان:',error);
+  }
+
+  document.getElementById('submitExam').disabled = true;
+  examGraded = true;
+}
+  let progressChart = null;
+
+function renderProgressChart(){
+  const canvas = document.getElementById('progressChart');
+
+  if(!canvas || typeof Chart === 'undefined') return;
+
+  let history = [];
+
+  try{
+    history = JSON.parse(
+      localStorage.getItem('examHistory') || '[]'
+    );
+  }catch(e){
+    history = [];
+  }
+
+  const recent = history.slice(0,5).reverse();
+
+  const labels = recent.map((item,i) =>
+    'امتحان ' + (i+1)
+  );
+
+  const scores = recent.map(item =>
+    Number(item.percentage) || 0
+  );
+
+  if(progressChart){
+    progressChart.destroy();
+  }
+
+  progressChart = new Chart(canvas,{
+    type:'line',
+
+    data:{
+      labels:labels,
+      datasets:[{
+        label:'النتيجة (%)',
+        data:scores,
+        tension:0.3,
+        fill:false
+      }]
+    },
+
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+
+      scales:{
+        y:{
+          beginAtZero:true,
+          max:100
+        }
+      }
+    }
+    });
+}
+
+function renderPerformanceComparison(){
+  const box = document.getElementById('performanceComparison');
+  if(!box) return;
+
+  let history = [];
+
+  try{
+    history = JSON.parse(
+      localStorage.getItem('examHistory') || '[]'
+    );
+  }catch(e){
+    history = [];
+  }
+
+  const recent = history.slice(0,5);
+
+  if(recent.length < 2){
+    box.textContent = 'أجرِ امتحانين على الأقل لمقارنة أدائك.';
+    return;
+  }
+
+  const latest = Number(recent[0].percentage) || 0;
+  const previous = Number(recent[1].percentage) || 0;
+  const difference = latest - previous;
+
+  if(difference > 0){
+    box.textContent = 'تحسن مستواك بمقدار ' + difference.toFixed(1) + '% مقارنة بالامتحان السابق. ممتاز! 👏';
+  }else if(difference < 0){
+    box.textContent = 'تراجعت نتيجتك بمقدار ' + Math.abs(difference).toFixed(1) + '%. حاول مراجعة نقاط الضعف.';
+  }else{
+    box.textContent = 'مستواك ثابت مقارنة بالامتحان السابق. استمر!';
+  }
+  }
+  function renderStatistics(){
+  let history = [];
+
+  try{
+    history = JSON.parse(
+      localStorage.getItem('examHistory') || '[]'
+    );
+  }catch(e){
+    history = [];
+  }
+
+  const total = history.length;
+
+  const totalExams = document.getElementById('totalExams');
+  const averageScore = document.getElementById('averageScore');
+  const highestScore = document.getElementById('highestScore');
+  const successRate = document.getElementById('successRate');
+
+  if(!total){
+    totalExams.textContent = '0';
+    averageScore.textContent = '0%';
+    highestScore.textContent = '0%';
+    successRate.textContent = '0%';
+
+    renderProgressChart();
+    renderPerformanceComparison();
+    return;
+  }
+
+  const percentages = history.map(item =>
+    Number(item.percentage) || 0
+  );
+
+  const average = percentages.reduce((a,b)=>a+b,0) / total;
+  const highest = Math.max(...percentages);
+  const passed = percentages.filter(value => value >= 50).length;
+  const success = (passed / total) * 100;
+
+  totalExams.textContent = total;
+  averageScore.textContent = Math.round(average) + '%';
+  highestScore.textContent = Math.round(highest) + '%';
+  successRate.textContent = Math.round(success) + '%';
+
+  renderProgressChart();
+  renderPerformanceComparison();
+  }
+function renderExamHistory(){
+  const box = document.getElementById('examHistoryList');
+  if(!box) return;
+
+  let history = [];
+
+  try{
+    history = JSON.parse(
+      localStorage.getItem('examHistory') || '[]'
+    );
+  }catch(e){
+    history = [];
+  }
+
+  if(!history.length){
+    box.innerHTML = '<p class="small">لا توجد امتحانات محفوظة بعد.</p>';
+    return;
+  }
+
+  box.innerHTML = '';
+
+  history.forEach(record=>{
+    const item = document.createElement('div');
+    item.className = 'lesson';
+
+    const title = document.createElement('div');
+    title.className = 'lesson-title';
+    title.textContent = record.lesson || 'امتحان';
+
+    const details = document.createElement('p');
+    details.className = 'small';
+    details.textContent =
+      (record.date || '') +
+      ' — النتيجة: ' + record.score +
+      ' من ' + record.total +
+      ' (' + record.percentage + '%)';
+
+    const reviewBtn = document.createElement('button');
+reviewBtn.textContent = 'مراجعة الامتحان';
+reviewBtn.className = 'secondary';
+reviewBtn.style.marginTop = '8px';
+reviewBtn.onclick = () => reviewPastExam(record.id);
+const deleteBtn = document.createElement('button');
+deleteBtn.textContent = 'حذف الامتحان';
+deleteBtn.className = 'danger';
+deleteBtn.style.marginTop = '8px';
+deleteBtn.style.marginRight = '5px';
+deleteBtn.onclick = () => deletePastExam(record.id);
+item.append(title,details,reviewBtn,deleteBtn);
+box.append(item);
+  });
+    }
+  function deletePastExam(id){
+  const confirmDelete = confirm('هل أنت متأكد من حذف هذا الامتحان؟');
+
+  if(!confirmDelete) return;
+
+  try{
+    let history = JSON.parse(
+      localStorage.getItem('examHistory') || '[]'
+    );
+
+    history = history.filter(item => item.id !== id);
+
+    localStorage.setItem(
+      'examHistory',
+      JSON.stringify(history)
+    );
+
+    renderExamHistory();
+renderStatistics();
+    document.getElementById('pastExamReview').innerHTML = '';
+
+    alert('تم حذف الامتحان بنجاح');
+
+  }catch(error){
+    alert('حدث خطأ أثناء حذف الامتحان');
+  }
+  }
+  function reviewPastExam(id){
+  let history = [];
+
+  try{
+    history = JSON.parse(
+      localStorage.getItem('examHistory') || '[]'
+    );
+  }catch(e){
+    return;
+  }
+
+  const record = history.find(item => item.id === id);
+  if(!record) return;
+
+  const box = document.getElementById('pastExamReview');
+  box.innerHTML = '';
+
+  const title = document.createElement('h2');
+  title.textContent = 'مراجعة الامتحان: ' + record.lesson;
+  box.append(title);
+
+  const result = document.createElement('p');
+  result.className = 'score';
+  result.textContent =
+    'النتيجة: ' + record.score + ' من ' +
+    record.total + ' (' + record.percentage + '%)';
+  box.append(result);
+
+  record.questions.forEach((q,i)=>{
+    const card = document.createElement('div');
+    card.className = 'question';
+
+    const question = document.createElement('h3');
+    question.textContent = (i+1) + '. ' + q.q;
+    card.append(question);
+
+    q.o.forEach((option,j)=>{
+      const answer = document.createElement('p');
+
+      answer.textContent =
+        (j+1) + '. ' + option +
+        (j === q.a ? ' ✓ الإجابة الصحيحة' : '') +
+        (record.answers[i] === j && j !== q.a ? ' ✗ إجابتك' : '');
+
+      if(j === q.a) answer.className = 'correct';
+      else if(record.answers[i] === j) answer.className = 'wrong';
+
+      card.append(answer);
+    });
+
+    if(q.e){
+      const explanation = document.createElement('p');
+      explanation.className = 'small';
+      explanation.textContent = 'التفسير: ' + q.e;
+      card.append(explanation);
+    }
+
+    box.append(card);
+  });
+
+  box.scrollIntoView({behavior:'smooth'});
+         }
+function closeExam(){
+  document.getElementById('examPanel').classList.add('hidden');
+}
+
+renderLessons();
+renderExamHistory();
+renderStatistics();
+
+// فحص الأخطاء البرمجية
+window.addEventListener('error', function(event) {
+  console.error('خطأ في التطبيق:', event.message);
+});
+
+window.addEventListener('unhandledrejection', function(event) {
+  console.error('خطأ في عملية غير مكتملة:', event.reason);
+});
+</script>
+</body>
+</html>
