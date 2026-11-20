@@ -126,7 +126,7 @@
 <script>
 if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 // عنوان Cloudflare Worker. مفتاح Gemini يبقى محفوظاً داخل Cloudflare ولا يوضع هنا.
-const WORKER_URL='https://fancy-wood-bb0f.abbass0966.workers.dev';
+const WORKER_URL='https://studysmartai-api.abbass0966.workers.dev';
 const MAX_TEXT_CHARS = 1000;
 let lessons=[];let contents={};try{lessons=JSON.parse(localStorage.getItem('studyLessons')||'[]')}catch(e){}try{contents=JSON.parse(localStorage.getItem('studyContents')||'{}')}catch(e){}
 let selectedLesson=null,currentQuestions=[],examGraded=false;
