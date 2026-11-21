@@ -1065,7 +1065,7 @@ function changeQuestion(direction){
   currentQuestionIndex = next;
   showQuestion();
 }
-function gradeExam(){
+async function gradeExam(){
   clearInterval(examTimerInterval);
 
   if(examGraded || !currentQuestions.length) return;
@@ -1209,7 +1209,16 @@ function gradeExam(){
       'examHistory',
       JSON.stringify(history)
     );
-
+if(studentToken && currentStudent){
+  await cloudRequest('save_result', {
+    lesson_id: selectedLesson
+      ? currentStudent.id + ':' + selectedLesson
+      : null,
+    score: score,
+    total_questions: currentQuestions.length,
+    result_data: examRecord
+  });
+  }
     console.log('تم حفظ نتيجة الامتحان بنجاح');
     renderExamHistory();
     renderStatistics();
@@ -1691,6 +1700,57 @@ async function loadCloudLessons() {
 
   saveData();
   renderLessons();
+  const localHistory = JSON.parse(
+  localStorage.getItem('examHistory') || '[]'
+);
+
+const cloudData = await cloudRequest('list_results');
+const cloudHistory = (cloudData.results || []).map(item => {
+  try {
+    return typeof item.result_data === 'string'
+      ? JSON.parse(item.result_data)
+      : item.result_data;
+  } catch(e) {
+    return null;
+  }
+}).filter(Boolean);
+
+const cloudIds = new Set(
+  cloudHistory.map(item => String(item.id))
+);
+
+for (const record of localHistory) {
+  if (!cloudIds.has(String(record.id))) {
+    await cloudRequest('save_result', {
+      lesson_id: null,
+      score: record.score,
+      total_questions: record.total,
+      result_data: record
+    });
+  }
+}
+
+const updatedResults = await cloudRequest('list_results');
+
+const finalHistory = (updatedResults.results || [])
+  .map(item => {
+    try {
+      return typeof item.result_data === 'string'
+        ? JSON.parse(item.result_data)
+        : item.result_data;
+    } catch(e) {
+      return null;
+    }
+  })
+  .filter(Boolean);
+
+localStorage.setItem(
+  'examHistory',
+  JSON.stringify(finalHistory)
+);
+
+renderExamHistory();
+renderStatistics();
 }
 
 async function syncCloudLessons() {
