@@ -177,7 +177,21 @@ function loadSelectedTrack(){
 }
 
 loadSelectedTrack();
-function saveData(){try{localStorage.setItem('studyLessons',JSON.stringify(lessons));localStorage.setItem('studyContents',JSON.stringify(contents))}catch(e){showMessage('مساحة التخزين قد تكون ممتلئة. جرّب ملفاً أصغر أو احذف محاضرات قديمة.')}}
+function saveData(){
+  try {
+    localStorage.setItem('studyLessons', JSON.stringify(lessons));
+    localStorage.setItem('studyContents', JSON.stringify(contents));
+
+    if (studentToken && currentStudent) {
+      syncCloudLessons().catch(error => {
+        console.error('Cloud save error:', error);
+        showMessage('تم الحفظ في الهاتف، لكن تعذر الحفظ السحابي.');
+      });
+    }
+  } catch(e) {
+    showMessage('مساحة التخزين قد تكون ممتلئة.');
+  }
+  }
   function exportBackup(){
   try{
     const backup = {
@@ -542,7 +556,35 @@ if(file.size === 0){
   this.value = '';
 });
 function openLesson(i){selectedLesson=lessons[i];document.getElementById('currentTitle').textContent=selectedLesson;document.getElementById('studyPanel').classList.remove('hidden');document.getElementById('examPanel').classList.add('hidden');document.getElementById('result').textContent='';document.getElementById('aiStatus').classList.add('hidden');document.getElementById('studyPanel').scrollIntoView({behavior:'smooth'})}
-function deleteLesson(i){const name=lessons[i];if(!confirm('هل تريد حذف هذه المحاضرة؟'))return;lessons.splice(i,1);delete contents[name];saveData();renderLessons();if(selectedLesson===name){selectedLesson=null;document.getElementById('studyPanel').classList.add('hidden')}}
+async function deleteLesson(i) {
+  const name = lessons[i];
+
+  if (!confirm('هل تريد حذف هذه المحاضرة؟')) return;
+
+  try {
+    if (studentToken && currentStudent) {
+      await cloudRequest('delete_lesson', {
+        id: currentStudent.id + ':' + name
+      });
+    }
+
+    lessons.splice(i, 1);
+    delete contents[name];
+
+    saveData();
+    renderLessons();
+
+    if (selectedLesson === name) {
+      selectedLesson = null;
+      document.getElementById('studyPanel').classList.add('hidden');
+    }
+
+    showMessage('تم حذف المحاضرة بنجاح.');
+
+  } catch (error) {
+    showMessage('تعذر حذف المحاضرة من قاعدة البيانات: ' + error.message);
+  }
+  }
 function showContent(){if(selectedLesson)document.getElementById('result').textContent=contents[selectedLesson]||'لا يوجد محتوى محفوظ.'}
 function getSelectedText(){
   if(!selectedLesson || !contents[selectedLesson]){
@@ -1536,7 +1578,14 @@ async function registerStudent() {
     localStorage.setItem('studyAuthToken', studentToken);
 
     status.textContent = 'تم إنشاء الحساب بنجاح.';
-    showStudentApp();
+
+try {
+  await loadCloudLessons();
+} catch (error) {
+  console.error(error);
+}
+
+showStudentApp();
 
   } catch (error) {
     status.textContent = error.message;
@@ -1562,13 +1611,99 @@ async function loginStudent() {
     localStorage.setItem('studyAuthToken', studentToken);
 
     status.textContent = 'تم تسجيل الدخول بنجاح.';
-    showStudentApp();
+
+try {
+  await loadCloudLessons();
+} catch (error) {
+  console.error(error);
+}
+
+showStudentApp();
 
   } catch (error) {
     status.textContent = error.message;
   }
 }
+async function cloudRequest(action, data = {}) {
+  const response = await fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'text/plain',
+      'Authorization': 'Bearer ' + studentToken
+    },
+    body: JSON.stringify({ action, ...data })
+  });
 
+  const result = await response.json();
+
+  if (!response.ok || !result.success) {
+    throw new Error(result.error || 'تعذر الاتصال بقاعدة البيانات.');
+  }
+
+  return result;
+}
+async function cloudRequest(action, data = {}) {
+  const response = await fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'text/plain',
+      'Authorization': 'Bearer ' + studentToken
+    },
+    body: JSON.stringify({ action, ...data })
+  });
+
+  const result = await response.json();
+
+  if (!response.ok || !result.success) {
+    throw new Error(result.error || 'تعذر الاتصال بقاعدة البيانات.');
+  }
+
+  return result;
+    }
+async function loadCloudLessons() {
+  const owner = localStorage.getItem('studyDataOwner');
+
+  if (!owner) {
+    for (const name of lessons) {
+      await cloudRequest('save_lesson', {
+        id: currentStudent.id + ':' + name,
+        title: name,
+        content: contents[name] || ''
+      });
+    }
+
+    localStorage.setItem('studyDataOwner', currentStudent.id);
+  } else if (owner !== currentStudent.id) {
+    lessons = [];
+    contents = {};
+    localStorage.setItem('studyDataOwner', currentStudent.id);
+  }
+
+  const result = await cloudRequest('list_lessons');
+
+  lessons = [];
+  contents = {};
+
+  for (const lesson of result.lessons) {
+    lessons.push(lesson.title);
+    contents[lesson.title] = lesson.content || '';
+  }
+
+  saveData();
+  renderLessons();
+}
+
+async function syncCloudLessons() {
+  if (!studentToken || !currentStudent) return;
+
+  for (const name of lessons) {
+    await cloudRequest('save_lesson', {
+      id: currentStudent.id + ':' + name,
+      title: name,
+      content: contents[name] || ''
+    });
+  }
+}
 async function restoreStudentSession() {
   if (!studentToken) {
     showLogin();
@@ -1592,7 +1727,14 @@ async function restoreStudentSession() {
     }
 
     currentStudent = result.user;
-    showStudentApp();
+
+try {
+  await loadCloudLessons();
+} catch (error) {
+  console.error('Cloud lessons error:', error);
+}
+
+showStudentApp();
 
   } catch (error) {
     studentToken = '';
