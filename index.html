@@ -13,6 +13,27 @@
 </style></head><body>
 <header><h1>Study Smart AI</h1><p>مساعدك الدراسي الذكي — ارفع محاضرتك، افهمها، واختبر نفسك</p></header>
 <main>
+  <section class="card" id="authPanel">
+  <h2>🎓 Study Smart AI</h2>
+  <p class="small">سجّل دخولك للوصول إلى محاضراتك ونتائجك.</p>
+
+  <input id="authName" type="text"
+    placeholder="الاسم الكامل" autocomplete="name">
+
+  <input id="authEmail" type="email"
+    placeholder="البريد الإلكتروني" autocomplete="email">
+
+  <input id="authPassword" type="password"
+    placeholder="كلمة المرور (8 أحرف على الأقل)"
+    autocomplete="current-password">
+
+  <div class="row">
+    <button onclick="registerStudent()">إنشاء حساب</button>
+    <button class="secondary" onclick="loginStudent()">تسجيل الدخول</button>
+  </div>
+
+  <p id="authStatus" class="small" aria-live="polite"></p>
+  </section>
   <section class="card" id="trackPanel">
   <h2>اختر تخصصك الدراسي</h2>
 
@@ -1452,5 +1473,136 @@ window.addEventListener('unhandledrejection', function(event) {
   console.error('خطأ في عملية غير مكتملة:', event.reason);
 });
 </script>
+  <script>
+const API_URL = 'https://studysmartai-api.abbass0966.workers.dev';
+
+let studentToken = localStorage.getItem('studyAuthToken') || '';
+let currentStudent = null;
+
+const authPanel = document.getElementById('authPanel');
+const mainSections = [...document.querySelector('main').children];
+
+function showStudentApp() {
+  mainSections.forEach(section => {
+    section.hidden = section.id === 'authPanel';
+  });
+}
+
+function showLogin() {
+  mainSections.forEach(section => {
+    section.hidden = section.id !== 'authPanel';
+  });
+}
+
+async function authRequest(action, data = {}) {
+  const response = await fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'text/plain'
+    },
+    body: JSON.stringify({
+      action,
+      ...data
+    })
+  });
+
+  const result = await response.json();
+
+  if (!response.ok || !result.success) {
+    throw new Error(result.error || 'تعذر إكمال العملية.');
+  }
+
+  return result;
+}
+
+async function registerStudent() {
+  const name = document.getElementById('authName').value.trim();
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const status = document.getElementById('authStatus');
+
+  status.textContent = 'جاري إنشاء الحساب...';
+
+  try {
+    const result = await authRequest('register', {
+      name,
+      email,
+      password
+    });
+
+    studentToken = result.token;
+    currentStudent = result.user;
+
+    localStorage.setItem('studyAuthToken', studentToken);
+
+    status.textContent = 'تم إنشاء الحساب بنجاح.';
+    showStudentApp();
+
+  } catch (error) {
+    status.textContent = error.message;
+  }
+}
+
+async function loginStudent() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const status = document.getElementById('authStatus');
+
+  status.textContent = 'جاري تسجيل الدخول...';
+
+  try {
+    const result = await authRequest('login', {
+      email,
+      password
+    });
+
+    studentToken = result.token;
+    currentStudent = result.user;
+
+    localStorage.setItem('studyAuthToken', studentToken);
+
+    status.textContent = 'تم تسجيل الدخول بنجاح.';
+    showStudentApp();
+
+  } catch (error) {
+    status.textContent = error.message;
+  }
+}
+
+async function restoreStudentSession() {
+  if (!studentToken) {
+    showLogin();
+    return;
+  }
+
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain',
+        'Authorization': 'Bearer ' + studentToken
+      },
+      body: JSON.stringify({ action: 'me' })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error('انتهت الجلسة.');
+    }
+
+    currentStudent = result.user;
+    showStudentApp();
+
+  } catch (error) {
+    studentToken = '';
+    currentStudent = null;
+    localStorage.removeItem('studyAuthToken');
+    showLogin();
+  }
+}
+
+restoreStudentSession();
+  </script>
 </body>
 </html>
