@@ -34,6 +34,12 @@
 
   <p id="authStatus" class="small" aria-live="polite"></p>
   </section>
+  <section class="card">
+  <button id="logoutBtn" class="secondary"
+    onclick="logoutStudent()" hidden>
+    🚪 تسجيل الخروج
+  </button>
+  </section>
   <section class="card" id="trackPanel">
   <h2>اختر تخصصك الدراسي</h2>
 
@@ -1537,6 +1543,7 @@ function showStudentApp() {
   mainSections.forEach(section => {
     section.hidden = section.id === 'authPanel';
   });
+  document.getElementById('logoutBtn').hidden = false;
 }
 
 function showLogin() {
@@ -1803,7 +1810,24 @@ showStudentApp();
     showLogin();
   }
 }
+function logoutStudent() {
+  studentToken = '';
+  currentStudent = null;
 
+  localStorage.removeItem('studyAuthToken');
+  localStorage.removeItem('studyDataOwner');
+  localStorage.removeItem('studyLessons');
+  localStorage.removeItem('studyContents');
+  localStorage.removeItem('examHistory');
+
+  lessons = [];
+  contents = {};
+
+  document.getElementById('logoutBtn').hidden = true;
+
+  showLogin();
+  showMessage('تم تسجيل الخروج بنجاح.');
+  }
 restoreStudentSession();
   </script>
 </body>
