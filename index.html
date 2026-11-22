@@ -1733,9 +1733,16 @@ async function submitNewPassword() {
       password
     });
 
-    status.textContent = 'تم تغيير كلمة المرور بنجاح. يمكنك تسجيل الدخول الآن.';
     document.getElementById('newPassword').value = '';
+
+    document.getElementById('resetPasswordPanel').hidden = true;
+
     history.replaceState({}, '', window.location.pathname);
+
+    logoutStudent();
+
+    document.getElementById('authStatus').textContent =
+      'تم تغيير كلمة المرور بنجاح. سجّل الدخول بكلمة المرور الجديدة.';
   } catch (error) {
     status.textContent = error.message;
   }
@@ -1916,7 +1923,9 @@ function logoutStudent() {
   showLogin();
   showMessage('تم تسجيل الخروج بنجاح.');
   }
-restoreStudentSession();
+if (!new URLSearchParams(window.location.search).has('reset_token')) {
+  restoreStudentSession();
+}
   </script>
 </body>
 </html>
