@@ -26,13 +26,31 @@
   <input id="authPassword" type="password"
     placeholder="كلمة المرور (8 أحرف على الأقل)"
     autocomplete="current-password">
-
+<button type="button" class="secondary"
+  onclick="forgotPassword()">
+  🔑 نسيت كلمة المرور؟
+</button>
   <div class="row">
     <button onclick="registerStudent()">إنشاء حساب</button>
     <button class="secondary" onclick="loginStudent()">تسجيل الدخول</button>
   </div>
 
   <p id="authStatus" class="small" aria-live="polite"></p>
+  </section>
+  <section class="card" id="resetPasswordPanel" hidden>
+  <h2>🔐 تعيين كلمة مرور جديدة</h2>
+
+  <input
+    id="newPassword"
+    type="password"
+    placeholder="كلمة المرور الجديدة (8 أحرف على الأقل)"
+  >
+
+  <button onclick="submitNewPassword()">
+    تغيير كلمة المرور
+  </button>
+
+  <p id="resetPasswordStatus" class="small"></p>
   </section>
   <section class="card">
   <button id="logoutBtn" class="secondary"
@@ -1640,6 +1658,28 @@ showStudentApp();
     status.textContent = error.message;
   }
 }
+    async function forgotPassword() {
+  const email = document.getElementById('authEmail').value.trim();
+  const status = document.getElementById('authStatus');
+
+  if (!email) {
+    status.textContent = 'أدخل بريدك الإلكتروني أولاً.';
+    return;
+  }
+
+  status.textContent = 'جاري إرسال رابط الاستعادة...';
+
+  try {
+    const result = await authRequest('request_password_reset', {
+      email
+    });
+
+    status.textContent =
+      'إذا كان البريد مسجلاً، سيصلك رابط استعادة كلمة المرور.';
+  } catch (error) {
+    status.textContent = error.message;
+  }
+    }
 async function cloudRequest(action, data = {}) {
   const response = await fetch(API_URL, {
     method: 'POST',
