@@ -1559,8 +1559,7 @@ const mainSections = [...document.querySelector('main').children];
 
 function showStudentApp() {
   mainSections.forEach(section => {
-    section.hidden = section.id === 'authPanel';
-  });
+    section.hidden = section.id === 'authPanel' || section.id === 'resetPasswordPanel';
   document.getElementById('logoutBtn').hidden = false;
 }
 
