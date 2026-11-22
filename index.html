@@ -1698,6 +1698,50 @@ async function cloudRequest(action, data = {}) {
 
   return result;
 }
+    function showResetPasswordPanel() {
+  const token = new URLSearchParams(window.location.search)
+    .get('reset_token');
+
+  if (token) {
+    document.getElementById('authPanel').hidden = true;
+    document.getElementById('resetPasswordPanel').hidden = false;
+  }
+}
+
+async function submitNewPassword() {
+  const token = new URLSearchParams(window.location.search)
+    .get('reset_token');
+
+  const password = document.getElementById('newPassword').value;
+  const status = document.getElementById('resetPasswordStatus');
+
+  if (!token) {
+    status.textContent = 'رابط الاستعادة غير صالح.';
+    return;
+  }
+
+  if (password.length < 8) {
+    status.textContent = 'كلمة المرور يجب ألا تقل عن 8 أحرف.';
+    return;
+  }
+
+  status.textContent = 'جاري تغيير كلمة المرور...';
+
+  try {
+    await authRequest('reset_password', {
+      token,
+      password
+    });
+
+    status.textContent = 'تم تغيير كلمة المرور بنجاح. يمكنك تسجيل الدخول الآن.';
+    document.getElementById('newPassword').value = '';
+    history.replaceState({}, '', window.location.pathname);
+  } catch (error) {
+    status.textContent = error.message;
+  }
+}
+
+showResetPasswordPanel();
 async function cloudRequest(action, data = {}) {
   const response = await fetch(API_URL, {
     method: 'POST',
