@@ -1565,10 +1565,14 @@ function showStudentApp() {
 }
 
 function showLogin() {
-  mainSections.forEach(section => {
-    section.hidden = section.id !== 'authPanel';
-  });
-}
+mainSections.forEach(section => {
+section.hidden = section.id !== 'authPanel';
+});
+
+document.getElementById('authPanel').hidden = false;
+document.getElementById('resetPasswordPanel').hidden = true;
+document.getElementById('logoutBtn').hidden = true;
+    }
 
 async function authRequest(action, data = {}) {
   const response = await fetch(API_URL, {
