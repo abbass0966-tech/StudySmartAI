@@ -1703,13 +1703,18 @@ async function cloudRequest(action, data = {}) {
   return result;
 }
     function showResetPasswordPanel() {
-  const token = new URLSearchParams(window.location.search)
-    .get('reset_token');
+const token = new URLSearchParams(window.location.search)
+.get('reset_token');
 
-  if (token) {
-    document.getElementById('authPanel').hidden = true;
-    document.getElementById('resetPasswordPanel').hidden = false;
-  }
+if (token) {
+mainSections.forEach(section => {
+section.hidden = section.id !== 'resetPasswordPanel';
+});
+
+document.getElementById('resetPasswordPanel').hidden = false;
+document.getElementById('logoutBtn').hidden = true;
+
+}
 }
 
 async function submitNewPassword() {
