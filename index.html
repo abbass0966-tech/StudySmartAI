@@ -53,13 +53,13 @@
 
   <p id="resetPasswordStatus" class="small"></p>
   </section>
-  <section class="card">
+  <section class="card" hidden>
   <button id="logoutBtn" class="secondary"
     onclick="logoutStudent()" hidden>
     🚪 تسجيل الخروج
   </button>
   </section>
-  <section class="card" id="trackPanel">
+  <section class="card" id="trackPanel" hidden>
   <h2>اختر تخصصك الدراسي</h2>
 
   <p class="small">
@@ -78,8 +78,8 @@
 
   <p id="trackStatus" class="small"></p>
   </section>
-<section class="card"><h2>إضافة محاضرة</h2><p class="small">يدعم ملفات PDF وTXT وPowerPoint (PPT وPPTX) وWord (DOCX) والصور (JPG وPNG) مع استخراج النص عبر OCR. يلزم الإنترنت لتحميل المكتبات واستخدام خدمات Gemini.</p><input id="fileInput" type="file" accept=".pdf,.txt,.pptx,.ppt,.docx,.jpg,.jpeg,.png,application/pdf,text/plain,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/jpeg,image/png"><div id="uploadStatus" class="small" aria-live="polite"></div></section>
-<section class="card">
+<section class="card" hidden><h2>إضافة محاضرة</h2><p class="small">يدعم ملفات PDF وTXT وPowerPoint (PPT وPPTX) وWord (DOCX) والصور (JPG وPNG) مع استخراج النص عبر OCR. يلزم الإنترنت لتحميل المكتبات واستخدام خدمات Gemini.</p><input id="fileInput" type="file" accept=".pdf,.txt,.pptx,.ppt,.docx,.jpg,.jpeg,.png,application/pdf,text/plain,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/jpeg,image/png"><div id="uploadStatus" class="small" aria-live="polite"></div></section>
+<section class="card" hidden>
   <h2>النسخ الاحتياطي واستعادة البيانات</h2>
 
   <p class="small">
@@ -105,7 +105,7 @@
     onchange="if(this.files[0]) restoreBackup(this.files[0]); this.value=''"
   >
 </section>
-  <section class="card"><h2>محاضراتي</h2><div id="lessons"><p class="small">لا توجد محاضرات بعد.</p></div></section>
+  <section class="card" hidden><h2>محاضراتي</h2><div id="lessons"><p class="small">لا توجد محاضرات بعد.</p></div></section>
 <section id="studyPanel" class="card hidden"><h2 id="currentTitle">المحاضرة</h2><div class="row"><button class="secondary" onclick="showContent()">عرض النص المستخرج</button></div><hr><h2>إعدادات الذكاء الاصطناعي</h2><label class="field" for="language">لغة الناتج</label><select id="language"><option value="Arabic">العربية</option><option value="English">English</option></select><label class="field" for="difficulty">مستوى الامتحان</label><select id="difficulty"><option value="Easy">سهل</option><option value="Medium" selected>متوسط</option><option value="Hard">صعب</option></select><label class="field" for="questionCount">عدد الأسئلة</label><select id="questionCount"><option>5</option><option selected>10</option><option>15</option><option>20</option></select><hr><div class="row"><button id="summaryBtn" onclick="runAI('summary')">تلخيص بالذكاء الاصطناعي</button><button id="explainBtn" class="secondary" onclick="runAI('explain')">شرح المحاضرة</button><button id="examBtn" class="secondary" onclick="generateAIExam()">إنشاء امتحان من المحاضرة</button><button id="comprehensiveExamBtn" onclick="generateComprehensiveExam()">إنشاء امتحان شامل</button></div><div id="result" aria-live="polite"></div><div id="aiStatus" class="status hidden" aria-live="polite"></div></section>
 <section id="examPanel" class="card hidden"><h2>امتحان المحاضرة <span class="badge">MCQ</span></h2><p id="examNote" class="small">اختر إجابة واحدة لكل سؤال، ثم اضغط على التصحيح.</p><div id="questionCounter" class="badge">السؤال 1 من 10</div>
 <div id="examTimer" class="badge">الوقت: 00:00</div>
@@ -117,7 +117,7 @@
 <button class="secondary" onclick="closeExam()">إغلاق</button>
 </div><div id="examResult"></div></section>
 <!-- إحصائيات الأداء -->
-<section class="card" id="statisticsPanel">
+<section class="card" id="statisticsPanel" hidden>
   <h2>إحصائيات الأداء 📊</h2>
 
   <div class="lesson">
@@ -156,7 +156,7 @@
   </div>
 </section>
 <!-- سجل الامتحانات -->
-<section id="historyPanel" class="card">
+<section id="historyPanel" class="card" hidden>
   <h2>سجل الامتحانات</h2>
   <div id="examHistoryList">
   <p class="small">جارٍ تحميل سجل الامتحانات...</p>
@@ -1533,6 +1533,7 @@ renderStatistics();
   box.scrollIntoView({behavior:'smooth'});
          }
 function closeExam(){
+  clearInterval(examTimerInterval);
   document.getElementById('examPanel').classList.add('hidden');
 }
 
@@ -1560,39 +1561,62 @@ const mainSections = [...document.querySelector('main').children];
 
 function showStudentApp() {
   mainSections.forEach(section => {
-    section.hidden = section.id === 'authPanel' || section.id === 'resetPasswordPanel';
+    section.hidden =
+      section.id === 'authPanel' ||
+      section.id === 'resetPasswordPanel';
+  });
+
   document.getElementById('logoutBtn').hidden = false;
 }
 
 function showLogin() {
-mainSections.forEach(section => {
-section.hidden = section.id !== 'authPanel';
-});
-
-document.getElementById('authPanel').hidden = false;
-document.getElementById('resetPasswordPanel').hidden = true;
-document.getElementById('logoutBtn').hidden = true;
-    }
-
-async function authRequest(action, data = {}) {
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'text/plain'
-    },
-    body: JSON.stringify({
-      action,
-      ...data
-    })
+  mainSections.forEach(section => {
+    section.hidden = section.id !== 'authPanel';
   });
 
-  const result = await response.json();
+  document.getElementById('authPanel').hidden = false;
+  document.getElementById('resetPasswordPanel').hidden = true;
+  document.getElementById('logoutBtn').hidden = true;
+}
 
-  if (!response.ok || !result.success) {
-    throw new Error(result.error || 'تعذر إكمال العملية.');
+async function readApiResponse(response, fallbackMessage) {
+  const raw = await response.text();
+  let result;
+
+  try {
+    result = JSON.parse(raw);
+  } catch (error) {
+    if (response.status === 524 || /error code:\s*524/i.test(raw)) {
+      throw new Error('الخادم استغرق وقتاً طويلاً في الرد (524). حاول مرة أخرى بعد قليل.');
+    }
+    throw new Error('رد الخادم غير مفهوم' +
+      (response.status ? ' (' + response.status + ')' : '') + '.');
+  }
+
+  if (!response.ok || !result || result.success === false) {
+    throw new Error(
+      (result && (result.error || result.details || result.message)) ||
+      fallbackMessage
+    );
   }
 
   return result;
+}
+
+async function authRequest(action, data = {}) {
+  let response;
+
+  try {
+    response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ action, ...data })
+    });
+  } catch (error) {
+    throw new Error('تعذر الاتصال بالخادم. تحقق من الإنترنت ثم حاول مجدداً.');
+  }
+
+  return readApiResponse(response, 'تعذر إكمال العملية.');
 }
 
 async function registerStudent() {
@@ -1685,24 +1709,25 @@ showStudentApp();
   }
     }
 async function cloudRequest(action, data = {}) {
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'text/plain',
-      'Authorization': 'Bearer ' + studentToken
-    },
-    body: JSON.stringify({ action, ...data })
-  });
+  let response;
 
-  const result = await response.json();
-
-  if (!response.ok || !result.success) {
-    throw new Error(result.error || 'تعذر الاتصال بقاعدة البيانات.');
+  try {
+    response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain',
+        'Authorization': 'Bearer ' + studentToken
+      },
+      body: JSON.stringify({ action, ...data })
+    });
+  } catch (error) {
+    throw new Error('تعذر الاتصال بالخادم. تحقق من الإنترنت ثم حاول مجدداً.');
   }
 
-  return result;
+  return readApiResponse(response, 'تعذر الاتصال بقاعدة البيانات.');
 }
-    function showResetPasswordPanel() {
+
+function showResetPasswordPanel() {
 const token = new URLSearchParams(window.location.search)
 .get('reset_token');
 
@@ -1762,24 +1787,6 @@ if (document.readyState === 'loading') {
 } else {
   showResetPasswordPanel();
 }
-async function cloudRequest(action, data = {}) {
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'text/plain',
-      'Authorization': 'Bearer ' + studentToken
-    },
-    body: JSON.stringify({ action, ...data })
-  });
-
-  const result = await response.json();
-
-  if (!response.ok || !result.success) {
-    throw new Error(result.error || 'تعذر الاتصال بقاعدة البيانات.');
-  }
-
-  return result;
-    }
 async function loadCloudLessons() {
   const owner = localStorage.getItem('studyDataOwner');
 
@@ -1794,8 +1801,12 @@ async function loadCloudLessons() {
 
     localStorage.setItem('studyDataOwner', currentStudent.id);
   } else if (owner !== currentStudent.id) {
+    // لا ننقل أي بيانات محلية من حساب الطالب السابق إلى الحساب الحالي.
     lessons = [];
     contents = {};
+    localStorage.setItem('studyLessons', '[]');
+    localStorage.setItem('studyContents', '{}');
+    localStorage.setItem('examHistory', '[]');
     localStorage.setItem('studyDataOwner', currentStudent.id);
   }
 
@@ -1811,9 +1822,13 @@ async function loadCloudLessons() {
 
   saveData();
   renderLessons();
-  const localHistory = JSON.parse(
-  localStorage.getItem('examHistory') || '[]'
-);
+  let localHistory = [];
+  try {
+    localHistory = JSON.parse(localStorage.getItem('examHistory') || '[]');
+    if (!Array.isArray(localHistory)) localHistory = [];
+  } catch (error) {
+    localHistory = [];
+  }
 
 const cloudData = await cloudRequest('list_results');
 const cloudHistory = (cloudData.results || []).map(item => {
@@ -1891,10 +1906,10 @@ async function restoreStudentSession() {
       body: JSON.stringify({ action: 'me' })
     });
 
-    const result = await response.json();
+    const result = await readApiResponse(response, 'انتهت الجلسة.');
 
-    if (!response.ok || !result.success) {
-      throw new Error('انتهت الجلسة.');
+    if (!result.user) {
+      throw new Error('تعذر التحقق من بيانات الحساب.');
     }
 
     currentStudent = result.user;
@@ -1927,12 +1942,20 @@ function logoutStudent() {
   lessons = [];
   contents = {};
 
+  renderLessons();
+  renderExamHistory();
+  renderStatistics();
+
+  const reviewBox = document.getElementById('pastExamReview');
+  if (reviewBox) reviewBox.innerHTML = '';
+
   document.getElementById('logoutBtn').hidden = true;
 
   showLogin();
   showMessage('تم تسجيل الخروج بنجاح.');
   }
 if (!new URLSearchParams(window.location.search).has('reset_token')) {
+  showLogin();
   restoreStudentSession();
 }
   </script>
