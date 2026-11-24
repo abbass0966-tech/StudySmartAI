@@ -2048,10 +2048,17 @@ async function cloudRequest(action, data = {}) {
       body: JSON.stringify({ action, ...data })
     });
   } catch (error) {
-    throw new Error('تعذر الاتصال بالخادم. تحقق من الإنترنت ثم حاول مجدداً.');
+    console.error('Cloud request network error:', action, error);
+    throw new Error('فشل الاتصال أثناء تنفيذ الطلب (' + action + '). ' +
+      'تحقق من الإنترنت وحاول مجدداً.');
   }
 
-  return readApiResponse(response, 'تعذر الاتصال بقاعدة البيانات.');
+  try {
+    return await readApiResponse(response, 'تعذر الاتصال بقاعدة البيانات.');
+  } catch (error) {
+    console.error('Cloud request response error:', action, response.status, error);
+    throw new Error('فشل طلب (' + action + '): ' + error.message);
+  }
 }
 
 function showResetPasswordPanel() {
