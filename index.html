@@ -38,6 +38,43 @@ body:has(#welcomePanel:not([hidden])) main{max-width:620px;margin:18px auto;padd
 .contact-card a,.contact-number{display:block;color:#123f83;text-decoration:none;font-size:14px;padding:7px;overflow-wrap:anywhere}
 @media(max-width:420px){.welcome-screen{padding:15px 13px;border-radius:22px}.welcome-hero{height:190px}.welcome-copy{font-size:13px}}
 
+
+/* Study Smart AI - authenticated multi-page workspace */
+body:has(#studentAppShell:not([hidden])){background:#f3f7fc}
+body:has(#studentAppShell:not([hidden]))>header{display:none}
+.student-shell{max-width:1100px;margin:14px auto 28px;padding:0 12px 28px}
+.app-topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 17px;background:linear-gradient(125deg,#0d5fc4,#103e91);color:#fff;border-radius:18px;box-shadow:0 8px 24px #174b8b20}
+.app-topbar h1{font-size:20px;color:#fff;margin:0}
+.app-topbar p{font-size:12px;opacity:.9;margin-top:2px}
+.app-topbar .account-area{display:flex;align-items:center;gap:10px;min-width:0}
+.app-topbar .account-name{font-size:13px;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.app-topbar #logoutBtn{background:#fff;color:#174f9e;padding:8px 12px;border-radius:10px;white-space:nowrap}
+.app-nav{display:flex;gap:7px;overflow-x:auto;padding:12px 2px 10px;scrollbar-width:thin;position:sticky;top:0;z-index:20;background:#f3f7fc}
+.app-nav button{flex:0 0 auto;background:#fff;color:#315477;border:1px solid #dce7f4;border-radius:12px;padding:9px 13px;font-size:13px;font-weight:700}
+.app-nav button.active{background:#1769d2;color:#fff;border-color:#1769d2;box-shadow:0 4px 12px #1769d225}
+.app-page{min-height:240px;animation:pageIn .18s ease}
+.app-page[hidden]{display:none!important}
+@keyframes pageIn{from{opacity:.55;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.dashboard-hero{padding:22px;border-radius:19px;background:linear-gradient(120deg,#e4f1ff,#fff);border:1px solid #d5e8ff;margin:10px 0 14px}
+.dashboard-hero h2{font-size:23px;color:#123f83;margin-bottom:4px}
+.dashboard-hero p{color:#526780;font-size:14px}
+.dashboard-shortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+.dashboard-shortcuts button{min-height:58px;text-align:right;padding:13px;border-radius:14px;font-weight:700}
+.dashboard-shortcuts button.secondary{background:#fff;border:1px solid #dce7f4;color:#174f9e}
+.page-heading{margin:14px 2px 8px}
+.page-heading h2{font-size:21px;margin:0 0 3px}
+.page-heading p{font-size:13px;color:#64748b}
+.profile-card,.settings-card,.tool-empty{background:#fff;border:1px solid #e0eaf5;border-radius:15px;padding:17px;margin:12px 0;box-shadow:0 3px 12px #17365d0b}
+.profile-row{padding:10px 0;border-bottom:1px solid #edf2f8;font-size:14px;overflow-wrap:anywhere}
+.profile-row:last-child{border-bottom:0}
+.profile-row strong{display:inline-block;min-width:90px;color:#315477}
+.settings-card label{margin-top:12px}
+.settings-card select{margin-bottom:12px}
+.tool-slot:empty{display:none}
+#studyPanel{margin-top:10px}
+#examPanel{margin-top:10px}
+@media(max-width:600px){.student-shell{padding:0 8px 22px;margin-top:8px}.app-topbar{padding:12px;border-radius:14px}.app-topbar h1{font-size:17px}.app-topbar .account-name{display:none}.app-nav{margin:0 -2px}.dashboard-hero{padding:17px}.dashboard-shortcuts{grid-template-columns:1fr}.app-topbar #logoutBtn{font-size:12px;padding:7px 9px}}
+
 </style></head><body>
 <header><h1>Study Smart AI</h1><p>مساعدك الدراسي الذكي — ارفع محاضرتك، افهمها، واختبر نفسك</p></header>
 <main>
@@ -630,7 +667,7 @@ if(file.size === 0){
 
   this.value = '';
 });
-function openLesson(i){selectedLesson=lessons[i];document.getElementById('currentTitle').textContent=selectedLesson;document.getElementById('studyPanel').classList.remove('hidden');document.getElementById('examPanel').classList.add('hidden');document.getElementById('result').textContent='';document.getElementById('aiStatus').classList.add('hidden');document.getElementById('studyPanel').scrollIntoView({behavior:'smooth'})}
+function openLesson(i){selectedLesson=lessons[i];document.getElementById('currentTitle').textContent=selectedLesson;document.getElementById('studyPanel').classList.remove('hidden');document.getElementById('examPanel').classList.add('hidden');document.getElementById('result').textContent='';document.getElementById('aiStatus').classList.add('hidden');navigateStudentPage('summary')}
 async function deleteLesson(i) {
   const name = lessons[i];
 
@@ -830,10 +867,11 @@ function toggleButtons(disabled){
     if(btn) btn.disabled = disabled;
   });
 }
-async function runAI(action){toggleButtons(true);document.getElementById('result').textContent='';setAIStatus('جارٍ إرسال المحاضرة إلى Gemini...');try{const {data,warning}=await callWorker(action);document.getElementById('result').textContent=typeof data.result==='string'?data.result:JSON.stringify(data.result,null,2);setAIStatus((warning?warning+'\n':'')+'اكتملت العملية بنجاح.','ok')}catch(err){setAIStatus('تعذر إكمال العملية: '+err.message,'error')}finally{toggleButtons(false)}}
+async function runAI(action){navigateStudentPage(action === 'explain' ? 'explain' : 'summary');toggleButtons(true);document.getElementById('result').textContent='';setAIStatus('جارٍ إرسال المحاضرة إلى Gemini...');try{const {data,warning}=await callWorker(action);document.getElementById('result').textContent=typeof data.result==='string'?data.result:JSON.stringify(data.result,null,2);setAIStatus((warning?warning+'\n':'')+'اكتملت العملية بنجاح.','ok')}catch(err){setAIStatus('تعذر إكمال العملية: '+err.message,'error')}finally{toggleButtons(false)}}
 function extractJSON(s){let t=String(s).trim().replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'');try{return JSON.parse(t)}catch(e){}const a=t.indexOf('{'),b=t.lastIndexOf('}');if(a>=0&&b>a){try{return JSON.parse(t.slice(a,b+1))}catch(e){}}throw new Error('وصلت الأسئلة كنص عادي وليست JSON. نحتاج ضبط صيغة رد Worker أولاً.')}
-async function generateAIExam(){toggleButtons(true);document.getElementById('result').textContent='';setAIStatus('جارٍ إنشاء أسئلة من محتوى المحاضرة...');try{const {data,warning}=await callWorker('exam');document.getElementById('result').textContent=typeof data.result==='string'?data.result:JSON.stringify(data.result,null,2);const parsed=typeof data.result==='object'?data.result:extractJSON(data.result);const arr=Array.isArray(parsed)?parsed:parsed.questions;if(!Array.isArray(arr)||!arr.length)throw new Error('لم أجد قائمة أسئلة في رد Gemini.');currentQuestions=arr.map(q=>{const opts=q.options||q.o||q.choices;let ans=q.answer??q.a??q.correctAnswer??q.correct;if(typeof ans==='string'&&/^[A-D]$/i.test(ans.trim()))ans=ans.trim().toUpperCase().charCodeAt(0)-65;return{q:String(q.question||q.q||''),o:Array.isArray(opts)?opts.map(String):[],a:Number(ans),e:String(q.explanation||q.e||'')}}).filter(q=>q.q&&q.o.length>=2&&Number.isInteger(q.a)&&q.a>=0&&q.a<q.o.length);if(!currentQuestions.length)throw new Error('تنسيق الأسئلة غير مكتمل. سنضبط صيغة رد Worker في الخطوة التالية.');renderExam();setAIStatus((warning?warning+'\n':'')+'تم إنشاء '+currentQuestions.length+' سؤالاً من المحاضرة.','ok');document.getElementById('examPanel').classList.remove('hidden');document.getElementById('examPanel').scrollIntoView({behavior:'smooth'})}catch(err){setAIStatus('تعذر إنشاء الامتحان: '+err.message,'error')}finally{toggleButtons(false)}}
+async function generateAIExam(){navigateStudentPage('createExam');toggleButtons(true);document.getElementById('result').textContent='';setAIStatus('جارٍ إنشاء أسئلة من محتوى المحاضرة...');try{const {data,warning}=await callWorker('exam');document.getElementById('result').textContent=typeof data.result==='string'?data.result:JSON.stringify(data.result,null,2);const parsed=typeof data.result==='object'?data.result:extractJSON(data.result);const arr=Array.isArray(parsed)?parsed:parsed.questions;if(!Array.isArray(arr)||!arr.length)throw new Error('لم أجد قائمة أسئلة في رد Gemini.');currentQuestions=arr.map(q=>{const opts=q.options||q.o||q.choices;let ans=q.answer??q.a??q.correctAnswer??q.correct;if(typeof ans==='string'&&/^[A-D]$/i.test(ans.trim()))ans=ans.trim().toUpperCase().charCodeAt(0)-65;return{q:String(q.question||q.q||''),o:Array.isArray(opts)?opts.map(String):[],a:Number(ans),e:String(q.explanation||q.e||'')}}).filter(q=>q.q&&q.o.length>=2&&Number.isInteger(q.a)&&q.a>=0&&q.a<q.o.length);if(!currentQuestions.length)throw new Error('تنسيق الأسئلة غير مكتمل. سنضبط صيغة رد Worker في الخطوة التالية.');renderExam();setAIStatus((warning?warning+'\n':'')+'تم إنشاء '+currentQuestions.length+' سؤالاً من المحاضرة.','ok');document.getElementById('examPanel').classList.remove('hidden');document.getElementById('examPanel').scrollIntoView({behavior:'smooth',block:'start'})}catch(err){setAIStatus('تعذر إنشاء الامتحان: '+err.message,'error')}finally{toggleButtons(false)}}
 async function generateComprehensiveExam(){
+  navigateStudentPage('comprehensive');
   toggleButtons(true);
   document.getElementById('result').textContent = '';
   setAIStatus('جارٍ تجهيز جميع المحاضرات لإنشاء الامتحان الشامل...');
@@ -1608,6 +1646,211 @@ let currentStudent = null;
 
 const authPanel = document.getElementById('authPanel');
 const mainSections = [...document.querySelector('main').children];
+let studentAppShell = null;
+let studentPages = {};
+let studentPageButtons = {};
+let appLayoutReady = false;
+
+function buildStudentLayout() {
+  if (appLayoutReady) return;
+
+  const main = document.querySelector('main');
+  const findSection = selector => mainSections.find(section => section.matches(selector) || section.querySelector(selector));
+  const logoutSection = findSection('#logoutBtn');
+  const logoutButton = document.getElementById('logoutBtn');
+  const trackPanel = document.getElementById('trackPanel');
+  const uploadPanel = findSection('#fileInput');
+  const backupPanel = findSection('#backupFileInput');
+  const lessonsPanel = findSection('#lessons');
+  const studyPanel = document.getElementById('studyPanel');
+  const examPanel = document.getElementById('examPanel');
+  const statisticsPanel = document.getElementById('statisticsPanel');
+  const historyPanel = document.getElementById('historyPanel');
+
+  studentAppShell = document.createElement('div');
+  studentAppShell.id = 'studentAppShell';
+  studentAppShell.className = 'student-shell';
+  studentAppShell.hidden = true;
+
+  const topbar = document.createElement('div');
+  topbar.className = 'app-topbar';
+  topbar.innerHTML = '<div><h1>Study Smart AI</h1><p>مساحتك التعليمية الذكية</p></div>';
+  const accountArea = document.createElement('div');
+  accountArea.className = 'account-area';
+  const accountName = document.createElement('span');
+  accountName.className = 'account-name';
+  accountName.id = 'appAccountName';
+  accountArea.append(accountName);
+  if (logoutButton) {
+    logoutButton.hidden = false;
+    logoutButton.textContent = 'تسجيل الخروج';
+    accountArea.append(logoutButton);
+  }
+  topbar.append(accountArea);
+  studentAppShell.append(topbar);
+  if (logoutSection) logoutSection.remove();
+
+  const nav = document.createElement('nav');
+  nav.className = 'app-nav';
+  nav.setAttribute('aria-label', 'التنقل داخل التطبيق');
+  const pageDefinitions = [
+    ['home','الرئيسية'],['lectures','محاضراتي'],['summary','تلخيص'],
+    ['explain','شرح المحاضرة'],['createExam','إنشاء امتحان'],
+    ['comprehensive','امتحان شامل'],['history','سجل الامتحانات'],
+    ['profile','ملفي الشخصي'],['settings','الإعدادات']
+  ];
+  pageDefinitions.forEach(([key,label]) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = label;
+    button.addEventListener('click', () => navigateStudentPage(key));
+    studentPageButtons[key] = button;
+    nav.append(button);
+  });
+  studentAppShell.append(nav);
+
+  const pageHost = document.createElement('div');
+  pageHost.className = 'app-page-host';
+  studentAppShell.append(pageHost);
+  pageDefinitions.forEach(([key,label]) => {
+    const page = document.createElement('section');
+    page.className = 'app-page';
+    page.id = 'studentPage_' + key;
+    page.hidden = true;
+    page.innerHTML = '<div class="page-heading"><h2>' + label + '</h2><p>' +
+      (key === 'home' ? 'تابع دراستك من مكان واحد.' : 'أدواتك وبياناتك محفوظة داخل حسابك.') +
+      '</p></div>';
+    studentPages[key] = page;
+    pageHost.append(page);
+  });
+
+  const homeHero = document.createElement('div');
+  homeHero.className = 'dashboard-hero';
+  homeHero.innerHTML = '<h2 id="dashboardGreeting">مرحباً بك في Study Smart AI</h2><p>ابدأ من محاضراتك، ثم لخّصها أو اطلب شرحها وأنشئ امتحاناتك.</p>';
+  const shortcuts = document.createElement('div');
+  shortcuts.className = 'dashboard-shortcuts';
+  [
+    ['lectures','📚 فتح محاضراتي'],['summary','📝 تلخيص محاضرة'],
+    ['explain','💡 شرح محاضرة'],['createExam','✍️ إنشاء امتحان'],
+    ['comprehensive','📘 امتحان شامل'],['history','📊 سجل الامتحانات']
+  ].forEach(([page,label],index) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = label;
+    if (index % 2) button.className = 'secondary';
+    button.addEventListener('click', () => navigateStudentPage(page));
+    shortcuts.append(button);
+  });
+  studentPages.home.append(homeHero,shortcuts);
+  if (statisticsPanel) studentPages.home.append(statisticsPanel);
+
+  if (trackPanel) studentPages.lectures.append(trackPanel);
+  if (uploadPanel) studentPages.lectures.append(uploadPanel);
+  if (backupPanel) studentPages.lectures.append(backupPanel);
+  if (lessonsPanel) studentPages.lectures.append(lessonsPanel);
+
+  const toolIntro = document.createElement('div');
+  toolIntro.className = 'tool-empty';
+  toolIntro.id = 'toolNeedsLesson';
+  toolIntro.textContent = 'افتح محاضرة من صفحة «محاضراتي» أولاً، ثم استخدم الأداة هنا.';
+  const toolSlots = {};
+  [['summary','summarySlot'],['explain','explainSlot'],['createExam','createExamSlot'],['comprehensive','comprehensiveSlot']].forEach(([key,id]) => {
+    const slot = document.createElement('div');
+    slot.className = 'tool-slot';
+    slot.id = id;
+    toolSlots[key] = slot;
+    studentPages[key].append(toolIntro.cloneNode(true));
+    studentPages[key].lastElementChild.id = 'toolNeedsLesson_' + key;
+    studentPages[key].append(slot);
+  });
+  if (studyPanel) toolSlots.summary.append(studyPanel);
+
+  const settingsCard = document.createElement('div');
+  settingsCard.className = 'settings-card';
+  settingsCard.innerHTML = '<h3>إعدادات الدراسة والامتحان</h3><p class="small">تُستخدم هذه الاختيارات عند تلخيص المحاضرات وإنشاء الامتحانات.</p>';
+  const studyHeadings = studyPanel ? studyPanel.querySelectorAll('h2') : [];
+  if (studyHeadings[1]) settingsCard.append(studyHeadings[1]);
+  ['language','difficulty','questionCount'].forEach(id => {
+    const label = document.querySelector('label[for="' + id + '"]');
+    const control = document.getElementById(id);
+    if (label) settingsCard.append(label);
+    if (control) settingsCard.append(control);
+  });
+  studentPages.settings.append(settingsCard);
+  if (studyPanel) {
+    const dividers = studyPanel.querySelectorAll('hr');
+    if (dividers[1]) dividers[1].remove();
+  }
+
+  if (examPanel) studentPages.createExam.append(examPanel);
+  if (historyPanel) studentPages.history.append(historyPanel);
+
+  const profileCard = document.createElement('div');
+  profileCard.className = 'profile-card';
+  profileCard.innerHTML = '<div class="profile-row"><strong>الاسم:</strong> <span id="profileName">—</span></div>' +
+    '<div class="profile-row"><strong>البريد:</strong> <span id="profileEmail">—</span></div>' +
+    '<p class="small" style="margin-top:12px">بيانات الحساب مرتبطة بحسابك، ومحاضراتك ونتائجك محفوظة في السحابة.</p>';
+  studentPages.profile.append(profileCard);
+  const settingsInfo = document.createElement('div');
+  settingsInfo.className = 'settings-card';
+  settingsInfo.innerHTML = '<h3>إعدادات التطبيق</h3><p class="small">يمكنك ضبط لغة الناتج ومستوى الامتحان وعدد الأسئلة من هذه الصفحة. وتُطبّق الإعدادات عند استخدام أدوات التلخيص والشرح والامتحانات.</p><button type="button" class="secondary" id="openStudySettings">ضبط إعدادات الدراسة</button>';
+  settingsInfo.querySelector('button').addEventListener('click', () => {
+    const settings = studentPages.settings.querySelector('.settings-card');
+    settings.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  studentPages.settings.append(settingsInfo);
+
+  main.append(studentAppShell);
+  appLayoutReady = true;
+}
+
+function navigateStudentPage(pageName) {
+  if (!appLayoutReady) buildStudentLayout();
+  if (!studentPages[pageName]) pageName = 'home';
+  Object.entries(studentPages).forEach(([key,page]) => {
+    page.hidden = key !== pageName;
+    if (studentPageButtons[key]) studentPageButtons[key].classList.toggle('active',key === pageName);
+  });
+
+  const studyPanel = document.getElementById('studyPanel');
+  const examPanel = document.getElementById('examPanel');
+  const toolButtons = ['summaryBtn','explainBtn','examBtn','comprehensiveExamBtn'];
+  const activeButton = {
+    summary:'summaryBtn', explain:'explainBtn',
+    createExam:'examBtn', comprehensive:'comprehensiveExamBtn'
+  }[pageName];
+  if (studyPanel && ['summary','explain','createExam','comprehensive'].includes(pageName)) {
+    const slot = document.getElementById({summary:'summarySlot',explain:'explainSlot',createExam:'createExamSlot',comprehensive:'comprehensiveSlot'}[pageName]);
+    if (slot) slot.append(studyPanel);
+    const hasLesson = Boolean(selectedLesson);
+    const requiresLesson = pageName !== 'comprehensive';
+    studyPanel.classList.toggle('hidden',requiresLesson && !hasLesson);
+    toolButtons.forEach(id => {
+      const button = document.getElementById(id);
+      if (button) button.hidden = id !== activeButton;
+    });
+    const note = document.getElementById('toolNeedsLesson_' + pageName);
+    if (note) note.hidden = hasLesson || !requiresLesson;
+  }
+  if (examPanel && (pageName === 'createExam' || pageName === 'comprehensive')) {
+    const slot = pageName === 'createExam' ? studentPages.createExam : studentPages.comprehensive;
+    slot.append(examPanel);
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function updateStudentProfile() {
+  const name = currentStudent?.name || currentStudent?.full_name || currentStudent?.fullName || 'طالب Study Smart AI';
+  const email = currentStudent?.email || '—';
+  const greeting = document.getElementById('dashboardGreeting');
+  const accountName = document.getElementById('appAccountName');
+  const profileName = document.getElementById('profileName');
+  const profileEmail = document.getElementById('profileEmail');
+  if (greeting) greeting.textContent = 'مرحباً ' + name;
+  if (accountName) accountName.textContent = name;
+  if (profileName) profileName.textContent = name;
+  if (profileEmail) profileEmail.textContent = email;
+}
 
 function hidePublicPanels() {
   ['welcomePanel','authPanel','registerPanel','resetPasswordPanel'].forEach(id => {
@@ -1618,12 +1861,14 @@ function hidePublicPanels() {
 
 function showWelcomePanel() {
   mainSections.forEach(section => { section.hidden = true; });
+  if (studentAppShell) studentAppShell.hidden = true;
   document.getElementById('welcomePanel').hidden = false;
   document.getElementById('logoutBtn').hidden = true;
 }
 
 function showLoginPanel() {
   mainSections.forEach(section => { section.hidden = true; });
+  if (studentAppShell) studentAppShell.hidden = true;
   document.getElementById('authPanel').hidden = false;
   document.getElementById('logoutBtn').hidden = true;
   document.getElementById('authStatus').textContent = '';
@@ -1631,19 +1876,30 @@ function showLoginPanel() {
 
 function showRegisterPanel() {
   mainSections.forEach(section => { section.hidden = true; });
+  if (studentAppShell) studentAppShell.hidden = true;
   document.getElementById('registerPanel').hidden = false;
   document.getElementById('logoutBtn').hidden = true;
   document.getElementById('registerStatus').textContent = '';
 }
 
 function showStudentApp() {
+  buildStudentLayout();
   hidePublicPanels();
-  mainSections.forEach(section => {
-    if (!['welcomePanel','authPanel','registerPanel','resetPasswordPanel'].includes(section.id)) {
-      section.hidden = false;
-    }
-  });
+  mainSections.forEach(section => { section.hidden = true; });
+  studentAppShell.hidden = false;
+  [
+    document.getElementById('trackPanel'),
+    document.querySelector('main #fileInput')?.closest('section'),
+    document.querySelector('main #backupFileInput')?.closest('section'),
+    document.querySelector('main #lessons')?.closest('section'),
+    document.getElementById('studyPanel'),
+    document.getElementById('examPanel'),
+    document.getElementById('statisticsPanel'),
+    document.getElementById('historyPanel')
+  ].filter(Boolean).forEach(section => { section.hidden = false; });
   document.getElementById('logoutBtn').hidden = false;
+  updateStudentProfile();
+  navigateStudentPage('home');
 }
 
 function showLogin() {
