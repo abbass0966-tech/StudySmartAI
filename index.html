@@ -2002,11 +2002,12 @@ async function loginStudent() {
 
 try {
   await loadCloudLessons();
+  showStudentApp();
 } catch (error) {
-  console.error(error);
+  console.error('Cloud lessons error:', error);
+  showStudentApp();
+  window.alert('تم تسجيل الدخول، لكن تعذّر تحميل المحاضرات والنتائج من السحابة. بياناتك لم تُحذف. تحقق من الإنترنت ثم أعد تحميل الصفحة.\n\n' + error.message);
 }
-
-showStudentApp();
 
   } catch (error) {
     status.textContent = error.message;
@@ -2127,8 +2128,15 @@ async function loadCloudLessons() {
     }
 
     localStorage.setItem('studyDataOwner', currentStudent.id);
-  } else if (owner !== currentStudent.id) {
-    // لا ننقل أي بيانات محلية من حساب الطالب السابق إلى الحساب الحالي.
+  }
+
+  const result = await cloudRequest('list_lessons');
+  if (!result || !Array.isArray(result.lessons)) {
+    throw new Error('استجابة المحاضرات من الخادم غير مكتملة؛ لم يتم تغيير البيانات المحلية.');
+  }
+
+  if (owner && owner !== currentStudent.id) {
+    // لا نمسح بيانات الحساب السابق إلا بعد نجاح جلب بيانات الحساب الحالي.
     lessons = [];
     contents = {};
     localStorage.setItem('studyLessons', '[]');
@@ -2136,8 +2144,6 @@ async function loadCloudLessons() {
     localStorage.setItem('examHistory', '[]');
     localStorage.setItem('studyDataOwner', currentStudent.id);
   }
-
-  const result = await cloudRequest('list_lessons');
 
   lessons = [];
   contents = {};
@@ -2243,11 +2249,12 @@ async function restoreStudentSession() {
 
 try {
   await loadCloudLessons();
+  showStudentApp();
 } catch (error) {
   console.error('Cloud lessons error:', error);
+  showStudentApp();
+  window.alert('تم استرجاع جلسة الدخول، لكن تعذّر تحميل المحاضرات والنتائج من السحابة. بياناتك لم تُحذف. تحقق من الإنترنت ثم أعد تحميل الصفحة.\n\n' + error.message);
 }
-
-showStudentApp();
 
   } catch (error) {
     studentToken = '';
