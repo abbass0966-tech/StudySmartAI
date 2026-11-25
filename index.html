@@ -40,41 +40,245 @@ body:has(#welcomePanel:not([hidden])) main{max-width:620px;margin:18px auto;padd
 
 
 /* Study Smart AI - authenticated multi-page workspace */
-body:has(#studentAppShell:not([hidden])){background:#f3f7fc}
-body:has(#studentAppShell:not([hidden]))>header{display:none}
-.student-shell{max-width:1100px;margin:14px auto 28px;padding:0 12px 28px}
-.app-topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 17px;background:linear-gradient(125deg,#0d5fc4,#103e91);color:#fff;border-radius:18px;box-shadow:0 8px 24px #174b8b20}
-.app-topbar h1{font-size:20px;color:#fff;margin:0}
-.app-topbar p{font-size:12px;opacity:.9;margin-top:2px}
-.app-topbar .account-area{display:flex;align-items:center;gap:10px;min-width:0}
-.app-topbar .account-name{font-size:13px;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.app-topbar #logoutBtn{background:#fff;color:#174f9e;padding:8px 12px;border-radius:10px;white-space:nowrap}
-.app-nav{display:flex;gap:7px;overflow-x:auto;padding:12px 2px 10px;scrollbar-width:thin;position:sticky;top:0;z-index:20;background:#f3f7fc}
-.app-nav button{flex:0 0 auto;background:#fff;color:#315477;border:1px solid #dce7f4;border-radius:12px;padding:9px 13px;font-size:13px;font-weight:700}
-.app-nav button.active{background:#1769d2;color:#fff;border-color:#1769d2;box-shadow:0 4px 12px #1769d225}
-.app-page{min-height:240px;animation:pageIn .18s ease}
-.app-page[hidden]{display:none!important}
-@keyframes pageIn{from{opacity:.55;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-.dashboard-hero{padding:22px;border-radius:19px;background:linear-gradient(120deg,#e4f1ff,#fff);border:1px solid #d5e8ff;margin:10px 0 14px}
-.dashboard-hero h2{font-size:23px;color:#123f83;margin-bottom:4px}
-.dashboard-hero p{color:#526780;font-size:14px}
-.dashboard-shortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
-.dashboard-shortcuts button{min-height:58px;text-align:right;padding:13px;border-radius:14px;font-weight:700}
-.dashboard-shortcuts button.secondary{background:#fff;border:1px solid #dce7f4;color:#174f9e}
-.page-heading{margin:14px 2px 8px}
-.page-heading h2{font-size:21px;margin:0 0 3px}
-.page-heading p{font-size:13px;color:#64748b}
-.profile-card,.settings-card,.tool-empty{background:#fff;border:1px solid #e0eaf5;border-radius:15px;padding:17px;margin:12px 0;box-shadow:0 3px 12px #17365d0b}
-.profile-row{padding:10px 0;border-bottom:1px solid #edf2f8;font-size:14px;overflow-wrap:anywhere}
-.profile-row:last-child{border-bottom:0}
-.profile-row strong{display:inline-block;min-width:90px;color:#315477}
-.settings-card label{margin-top:12px}
-.settings-card select{margin-bottom:12px}
-.tool-slot:empty{display:none}
-#studyPanel{margin-top:10px}
-#examPanel{margin-top:10px}
-@media(max-width:600px){.student-shell{padding:0 8px 22px;margin-top:8px}.app-topbar{padding:12px;border-radius:14px}.app-topbar h1{font-size:17px}.app-topbar .account-name{display:none}.app-nav{margin:0 -2px}.dashboard-hero{padding:17px}.dashboard-shortcuts{grid-template-columns:1fr}.app-topbar #logoutBtn{font-size:12px;padding:7px 9px}}
+body:has(#studentAppShell:not([hidden])) {
+  background: #f3f7fc;
+  padding-bottom: 90px;
+}
 
+body:has(#studentAppShell:not([hidden])) > header {
+  display: none;
+}
+
+.student-shell {
+  max-width: 1100px;
+  margin: 14px auto 28px;
+  padding: 0 12px 100px;
+}
+
+.app-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 15px 17px;
+  background: linear-gradient(125deg,#0d5fc4,#103e91);
+  color: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px #174b8b20;
+}
+
+.app-topbar h1 {
+  font-size: 20px;
+  color: #fff;
+  margin: 0;
+}
+
+.app-topbar p {
+  font-size: 12px;
+  opacity: .9;
+  margin-top: 2px;
+}
+
+.app-topbar .account-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.app-topbar .account-name {
+  font-size: 13px;
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-topbar #logoutBtn {
+  background: #fff;
+  color: #174f9e;
+  padding: 8px 12px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.app-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(100%, 1100px);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+  padding: 10px 8px calc(10px + env(safe-area-inset-bottom));
+  background: #fff;
+  border-top: 1px solid #dce7f4;
+  box-shadow: 0 -5px 20px #17365d12;
+  z-index: 1000;
+}
+
+.app-nav button {
+  min-width: 0;
+  background: transparent;
+  color: #315477;
+  border: 0;
+  border-radius: 12px;
+  padding: 11px 3px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.app-nav button.active {
+  background: #e8f2ff;
+  color: #1769d2;
+}
+
+.app-page {
+  min-height: 240px;
+  animation: pageIn .18s ease;
+}
+
+.app-page[hidden] {
+  display: none !important;
+}
+
+@keyframes pageIn {
+  from { opacity: .55; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dashboard-hero {
+  padding: 22px;
+  border-radius: 19px;
+  background: linear-gradient(120deg,#e4f1ff,#fff);
+  border: 1px solid #d5e8ff;
+  margin: 10px 0 14px;
+}
+
+.dashboard-hero h2 {
+  font-size: 23px;
+  color: #123f83;
+  margin-bottom: 4px;
+}
+
+.dashboard-hero p {
+  color: #526780;
+  font-size: 14px;
+}
+
+.dashboard-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.dashboard-shortcuts button {
+  min-height: 58px;
+  text-align: right;
+  padding: 13px;
+  border-radius: 14px;
+  font-weight: 700;
+}
+
+.dashboard-shortcuts button.secondary {
+  background: #fff;
+  border: 1px solid #dce7f4;
+  color: #174f9e;
+}
+
+.page-heading {
+  margin: 14px 2px 8px;
+}
+
+.page-heading h2 {
+  font-size: 21px;
+  margin: 0 0 3px;
+}
+
+.page-heading p {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.profile-card,
+.settings-card,
+.tool-empty {
+  background: #fff;
+  border: 1px solid #e0eaf5;
+  border-radius: 15px;
+  padding: 17px;
+  margin: 12px 0;
+  box-shadow: 0 3px 12px #17365d0b;
+}
+
+.profile-row {
+  padding: 10px 0;
+  border-bottom: 1px solid #edf2f8;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.profile-row:last-child {
+  border-bottom: 0;
+}
+
+.profile-row strong {
+  display: inline-block;
+  min-width: 90px;
+  color: #315477;
+}
+
+.settings-card label {
+  margin-top: 12px;
+}
+
+.settings-card select {
+  margin-bottom: 12px;
+}
+
+.tool-slot:empty {
+  display: none;
+}
+
+#studyPanel,
+#examPanel {
+  margin-top: 10px;
+}
+
+@media(max-width:600px) {
+  .student-shell {
+    padding: 0 8px 100px;
+    margin-top: 8px;
+  }
+
+  .app-topbar {
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .app-topbar h1 {
+    font-size: 17px;
+  }
+
+  .app-topbar .account-name {
+    display: none;
+  }
+
+  .dashboard-hero {
+    padding: 17px;
+  }
+
+  .dashboard-shortcuts {
+    grid-template-columns: 1fr;
+  }
+
+  .app-topbar #logoutBtn {
+    font-size: 12px;
+    padding: 7px 9px;
+  }
+}
 </style></head><body>
 <header><h1>Study Smart AI</h1><p>مساعدك الدراسي الذكي — ارفع محاضرتك، افهمها، واختبر نفسك</p></header>
 <main>
@@ -1690,24 +1894,40 @@ function buildStudentLayout() {
   studentAppShell.append(topbar);
   if (logoutSection) logoutSection.remove();
 
-  const nav = document.createElement('nav');
-  nav.className = 'app-nav';
-  nav.setAttribute('aria-label', 'التنقل داخل التطبيق');
   const pageDefinitions = [
-    ['home','الرئيسية'],['lectures','محاضراتي'],['summary','تلخيص'],
-    ['explain','شرح المحاضرة'],['createExam','إنشاء امتحان'],
-    ['comprehensive','امتحان شامل'],['history','سجل الامتحانات'],
-    ['profile','ملفي الشخصي'],['settings','الإعدادات']
-  ];
-  pageDefinitions.forEach(([key,label]) => {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.textContent = label;
-    button.addEventListener('click', () => navigateStudentPage(key));
-    studentPageButtons[key] = button;
-    nav.append(button);
-  });
-  studentAppShell.append(nav);
+['home','الرئيسية'],
+['lectures','محاضراتي'],
+['summary','تلخيص'],
+['explain','شرح المحاضرة'],
+['createExam','إنشاء امتحان'],
+['comprehensive','امتحان شامل'],
+['history','سجل الامتحانات'],
+['profile','ملفي الشخصي'],
+['settings','الإعدادات'],
+['more','المزيد']
+];
+
+const nav = document.createElement('nav');
+nav.className = 'app-nav';
+nav.setAttribute('aria-label', 'التنقل داخل التطبيق');
+
+const navDefinitions = [
+['home','الرئيسية'],
+['lectures','محاضراتي'],
+['profile','ملفي الشخصي'],
+['more','المزيد']
+];
+
+navDefinitions.forEach(([key,label]) => {
+const button = document.createElement('button');
+button.type = 'button';
+button.textContent = label;
+button.addEventListener('click', () => navigateStudentPage(key));
+studentPageButtons[key] = button;
+nav.append(button);
+});
+
+studentAppShell.append(nav);
 
   const pageHost = document.createElement('div');
   pageHost.className = 'app-page-host';
@@ -1799,6 +2019,26 @@ function buildStudentLayout() {
     settings.scrollIntoView({behavior:'smooth',block:'start'});
   });
   studentPages.settings.append(settingsInfo);
+  const moreMenu = document.createElement('div');
+moreMenu.className = 'dashboard-shortcuts';
+
+[
+['summary','📝 تلخيص المحاضرات'],
+['explain','💡 شرح المحاضرات'],
+['createExam','✍️ إنشاء امتحان'],
+['comprehensive','📘 امتحان شامل'],
+['history','📊 سجل الامتحانات'],
+['settings','⚙️ الإعدادات']
+].forEach(([page,label]) => {
+const button = document.createElement('button');
+button.type = 'button';
+button.textContent = label;
+button.className = 'secondary';
+button.addEventListener('click', () => navigateStudentPage(page));
+moreMenu.append(button);
+});
+
+studentPages.more.append(moreMenu);
 
   main.append(studentAppShell);
   appLayoutReady = true;
@@ -1809,7 +2049,13 @@ function navigateStudentPage(pageName) {
   if (!studentPages[pageName]) pageName = 'home';
   Object.entries(studentPages).forEach(([key,page]) => {
     page.hidden = key !== pageName;
-    if (studentPageButtons[key]) studentPageButtons[key].classList.toggle('active',key === pageName);
+    if (studentPageButtons[key]) {
+  studentPageButtons[key].classList.toggle(
+    'active',
+    key === pageName ||
+    (key === 'more' && ['summary','explain','createExam','comprehensive','history','settings'].includes(pageName))
+  );
+}
   });
 
   const studyPanel = document.getElementById('studyPanel');
