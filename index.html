@@ -67,16 +67,41 @@ body:has(#studentAppShell:not([hidden])) > header {
   box-shadow: 0 8px 24px #174b8b20;
 }
 
-.app-topbar h1 {
+.app-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.app-brand-icon {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  background: #ffffff20;
+  border: 1px solid #ffffff55;
+  border-radius: 14px;
+  font-size: 25px;
+}
+
+.app-brand-text h1 {
   font-size: 20px;
   color: #fff;
   margin: 0;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
-.app-topbar p {
+.app-brand-text h1 strong {
+  color: #ffdf70;
+}
+
+.app-brand-text p {
   font-size: 12px;
-  opacity: .9;
-  margin-top: 2px;
+  color: #e5efff;
+  margin: 4px 0 0;
 }
 
 .app-topbar .account-area {
@@ -86,6 +111,10 @@ body:has(#studentAppShell:not([hidden])) > header {
   min-width: 0;
 }
 
+.app-topbar .account-name {
+  font-size: 13px;
+  color: #fff;
+}
 .app-topbar .account-name {
   font-size: 13px;
   max-width: 170px;
@@ -246,7 +275,141 @@ body:has(#studentAppShell:not([hidden])) > header {
 #examPanel {
   margin-top: 10px;
 }
+/* Study Smart AI - New Dashboard Design */
 
+.welcome-dashboard {
+  margin-top: 14px;
+}
+
+.welcome-student-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 20px;
+  border-radius: 20px;
+  background: linear-gradient(125deg,#0d5fc4,#103e91);
+  color: #fff;
+  box-shadow: 0 8px 22px #174b8b20;
+}
+
+.student-avatar {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #ffffff25;
+  border: 2px solid #ffffff80;
+  font-size: 28px;
+}
+
+.welcome-student-info {
+  flex: 1;
+  min-width: 180px;
+}
+
+.welcome-student-info h2 {
+  color: #fff;
+  font-size: 19px;
+  margin: 0 0 7px;
+}
+
+.welcome-student-info p {
+  color: #e5efff;
+  font-size: 12px;
+  margin: 0;
+}
+
+.student-badge {
+  background: #ffdf70;
+  color: #694900;
+  padding: 7px 11px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.main-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 13px;
+  margin: 18px 0;
+}
+
+.main-feature-card {
+  min-height: 125px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 12px;
+  padding: 18px;
+  border: 0;
+  border-radius: 18px;
+  text-align: right;
+  box-shadow: 0 5px 15px #17365d12;
+}
+
+.feature-icon {
+  font-size: 30px;
+}
+
+.feature-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #17365d;
+}
+
+.feature-purple {
+  background: #eee8ff;
+}
+
+.feature-green {
+  background: #e1f7ed;
+}
+
+.feature-orange {
+  background: #fff0dc;
+}
+
+.feature-blue {
+  background: #e2efff;
+}
+
+.latest-activity-card {
+  background: #fff;
+  border: 1px solid #e0eaf5;
+  border-radius: 18px;
+  padding: 18px;
+  margin: 16px 0;
+  box-shadow: 0 4px 14px #17365d0b;
+}
+
+.latest-activity-card h3 {
+  color: #174f9e;
+  font-size: 17px;
+  margin: 0 0 14px;
+}
+
+.latest-activity-card #statisticsPanel {
+  margin: 0;
+}
+
+@media(max-width:600px) {
+  .welcome-student-card {
+    padding: 15px;
+  }
+
+    .welcome-student-info h2 {
+    font-size: 16px;
+      }
+
+  .main-feature-card {
+    min-height: 112px;
+    padding: 14px;
+  }
+  }
 @media(max-width:600px) {
   .student-shell {
     padding: 0 8px 100px;
@@ -1876,23 +2039,38 @@ function buildStudentLayout() {
   studentAppShell.className = 'student-shell';
   studentAppShell.hidden = true;
 
-  const topbar = document.createElement('div');
-  topbar.className = 'app-topbar';
-  topbar.innerHTML = '<div><h1>Study Smart AI</h1><p>مساحتك التعليمية الذكية</p></div>';
-  const accountArea = document.createElement('div');
-  accountArea.className = 'account-area';
-  const accountName = document.createElement('span');
-  accountName.className = 'account-name';
-  accountName.id = 'appAccountName';
-  accountArea.append(accountName);
-  if (logoutButton) {
-    logoutButton.hidden = false;
-    logoutButton.textContent = 'تسجيل الخروج';
-    accountArea.append(logoutButton);
-  }
-  topbar.append(accountArea);
-  studentAppShell.append(topbar);
-  if (logoutSection) logoutSection.remove();
+const topbar = document.createElement('div');
+topbar.className = 'app-topbar';
+
+topbar.innerHTML = `
+  <div class="app-brand">
+    <div class="app-brand-icon">🎓📖</div>
+    <div class="app-brand-text">
+      <h1><span>Study Smart</span> <strong>AI</strong></h1>
+      <p>مساحتك التعليمية الذكية</p>
+    </div>
+  </div>
+`;
+
+const accountArea = document.createElement('div');
+accountArea.className = 'account-area';
+
+const accountName = document.createElement('span');
+accountName.className = 'account-name';
+accountName.id = 'appAccountName';
+
+accountArea.append(accountName);
+
+if (logoutButton) {
+  logoutButton.hidden = false;
+  logoutButton.textContent = 'تسجيل الخروج';
+  accountArea.append(logoutButton);
+}
+
+topbar.append(accountArea);
+studentAppShell.append(topbar);
+
+if (logoutSection) logoutSection.remove();
 
   const pageDefinitions = [
 ['home','الرئيسية'],
@@ -1944,25 +2122,57 @@ studentAppShell.append(nav);
     pageHost.append(page);
   });
 
-  const homeHero = document.createElement('div');
-  homeHero.className = 'dashboard-hero';
-  homeHero.innerHTML = '<h2 id="dashboardGreeting">مرحباً بك في Study Smart AI</h2><p>ابدأ من محاضراتك، ثم لخّصها أو اطلب شرحها وأنشئ امتحاناتك.</p>';
-  const shortcuts = document.createElement('div');
-  shortcuts.className = 'dashboard-shortcuts';
-  [
-    ['lectures','📚 فتح محاضراتي'],['summary','📝 تلخيص محاضرة'],
-    ['explain','💡 شرح محاضرة'],['createExam','✍️ إنشاء امتحان'],
-    ['comprehensive','📘 امتحان شامل'],['history','📊 سجل الامتحانات']
-  ].forEach(([page,label],index) => {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.textContent = label;
-    if (index % 2) button.className = 'secondary';
-    button.addEventListener('click', () => navigateStudentPage(page));
-    shortcuts.append(button);
-  });
-  studentPages.home.append(homeHero,shortcuts);
-  if (statisticsPanel) studentPages.home.append(statisticsPanel);
+// الصفحة الرئيسية - تصميم Study Smart AI
+const homeHero = document.createElement('div');
+homeHero.className = 'welcome-dashboard';
+
+homeHero.innerHTML = `
+  <div class="welcome-student-card">
+    <div class="student-avatar">👤</div>
+    <div class="welcome-student-info">
+      <h2 id="dashboardGreeting">مرحباً بك في Study Smart AI</h2>
+      <p>مرحباً بك مجدداً، ونتمنى لك النجاح والتفوق</p>
+    </div>
+    <div class="student-badge">⭐ حساب الطالب</div>
+  </div>
+`;
+
+const shortcuts = document.createElement('div');
+shortcuts.className = 'main-feature-grid';
+
+const features = [
+  ['lectures','📚','محاضراتي','feature-purple'],
+  ['summary','🧠','الذكاء الاصطناعي','feature-green'],
+  ['createExam','📝','الاختبارات','feature-orange'],
+  ['history','📊','تقارير الأداء','feature-blue']
+];
+
+features.forEach(([page,icon,label,color]) => {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'main-feature-card ' + color;
+
+  button.innerHTML = `
+    <span class="feature-icon">${icon}</span>
+    <span class="feature-title">${label}</span>
+  `;
+
+  button.addEventListener('click', () => navigateStudentPage(page));
+  shortcuts.append(button);
+});
+
+const activityCard = document.createElement('div');
+activityCard.className = 'latest-activity-card';
+
+activityCard.innerHTML = `
+  <h3>🕒 آخر نشاط لك</h3>
+`;
+
+if (statisticsPanel) {
+  activityCard.append(statisticsPanel);
+}
+
+studentPages.home.append(homeHero,shortcuts,activityCard);
 
   if (trackPanel) studentPages.lectures.append(trackPanel);
   if (uploadPanel) studentPages.lectures.append(uploadPanel);
