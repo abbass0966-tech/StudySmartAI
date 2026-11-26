@@ -2204,17 +2204,39 @@ studentPages.home.append(homeHero,shortcuts,activityCard);
   if (studyPanel) toolSlots.summary.append(studyPanel);
 
   const settingsCard = document.createElement('div');
-  settingsCard.className = 'settings-card';
-  settingsCard.innerHTML = '<h3>إعدادات الدراسة والامتحان</h3><p class="small">تُستخدم هذه الاختيارات عند تلخيص المحاضرات وإنشاء الامتحانات.</p>';
-  const studyHeadings = studyPanel ? studyPanel.querySelectorAll('h2') : [];
-  if (studyHeadings[1]) settingsCard.append(studyHeadings[1]);
-  ['language','difficulty','questionCount'].forEach(id => {
-    const label = document.querySelector('label[for="' + id + '"]');
-    const control = document.getElementById(id);
-    if (label) settingsCard.append(label);
-    if (control) settingsCard.append(control);
+settingsCard.className = 'settings-card';
+
+settingsCard.innerHTML = `
+  <h3>إعدادات الدراسة والامتحان</h3>
+  <p class="small">
+    تُستخدم هذه الاختيارات عند تلخيص المحاضرات وإنشاء الامتحانات.
+  </p>
+`;
+
+if (studyPanel) {
+  const studyHeadings = studyPanel.querySelectorAll('h2');
+
+  if (studyHeadings[1]) {
+    settingsCard.append(studyHeadings[1]);
+  }
+
+  ['language', 'difficulty', 'questionCount'].forEach(id => {
+    const label = studyPanel.querySelector(
+      'label[for="' + id + '"]'
+    );
+
+    const control = studyPanel.querySelector('#' + id);
+
+    if (label && control) {
+      const fieldGroup = document.createElement('div');
+      fieldGroup.className = 'settings-field';
+      fieldGroup.append(label, control);
+      settingsCard.append(fieldGroup);
+    }
   });
-  studentPages.settings.append(settingsCard);
+}
+
+studentPages.settings.append(settingsCard);
   if (studyPanel) {
     const dividers = studyPanel.querySelectorAll('hr');
     if (dividers[1]) dividers[1].remove();
