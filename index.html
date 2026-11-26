@@ -75,15 +75,20 @@ body:has(#studentAppShell:not([hidden])) > header {
 }
 
 .app-brand-icon {
-  width: 48px;
-  height: 48px;
+  width: 68px;
+  height: 58px;
   flex-shrink: 0;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  box-sizing: border-box;
   background: #ffffff20;
   border: 1px solid #ffffff55;
   border-radius: 14px;
-  font-size: 25px;
+  font-size: 22px;
 }
 
 .app-brand-text h1 {
@@ -311,10 +316,11 @@ body:has(#studentAppShell:not([hidden])) > header {
 
 .welcome-student-info h2 {
   color: #fff;
-  font-size: 19px;
+  font-size: 17px;
   margin: 0 0 7px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
-
 .welcome-student-info p {
   color: #e5efff;
   font-size: 12px;
