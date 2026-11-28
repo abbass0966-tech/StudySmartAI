@@ -2337,9 +2337,13 @@ studentPages.more.append(moreMenu);
     <div id="medicalStatus" class="status" hidden></div>
   `;
   studentPages.medicalAssistant.append(medicalCard);
+
+  // أضف واجهة التطبيق إلى الصفحة أولاً حتى تصبح عناصر المساعد الطبي متاحة في DOM.
+  main.append(studentAppShell);
+
+  // اربط أحداث أزرار المساعد بعد ظهور عناصرها في الصفحة.
   setupMedicalAssistant();
 
-  main.append(studentAppShell);
   appLayoutReady = true;
 }
 
