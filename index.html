@@ -462,6 +462,10 @@ body:has(#studentAppShell:not([hidden])) > header {
 .medical-message.user{align-self:flex-start;background:#e4efff;color:#173b6c;border:1px solid #cfe1fa}
 .medical-message.assistant{align-self:flex-end;background:#fff;color:#26384d;border:1px solid #dce7f4}
 .medical-message .medical-role{display:block;font-size:11px;font-weight:bold;color:#1769d2;margin-bottom:4px}
+.medical-sources{display:flex;flex-direction:column;gap:5px;margin-top:10px;padding-top:8px;border-top:1px solid #e3edf8;font-size:12px}
+.medical-sources strong{color:#1558ad}
+.medical-sources a{color:#1769d2;text-decoration:underline;overflow-wrap:anywhere}
+
 .medical-image-preview{margin:8px 0;padding:8px;border:1px dashed #9dbce2;border-radius:12px;background:#f8fbff}
 .medical-image-preview img{display:block;max-width:100%;max-height:220px;object-fit:contain;margin:0 auto;border-radius:8px}
 .medical-upload-row,.medical-actions{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
@@ -2643,6 +2647,30 @@ function renderMedicalHistory(){
     const body = document.createElement('span');
     body.textContent = item.text || '';
     bubble.append(role, body);
+
+    if(item.role !== 'user' && Array.isArray(item.sources) && item.sources.length){
+      const sourcesBox = document.createElement('div');
+      sourcesBox.className = 'medical-sources';
+      const heading = document.createElement('strong');
+      heading.textContent = 'المراجع الطبية';
+      sourcesBox.append(heading);
+
+      item.sources.forEach(source => {
+        if(!source || typeof source.url !== 'string') return;
+        let parsedUrl;
+        try { parsedUrl = new URL(source.url); } catch(error) { return; }
+        if(!['http:', 'https:'].includes(parsedUrl.protocol)) return;
+
+        const link = document.createElement('a');
+        link.href = parsedUrl.href;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = source.title || 'فتح المرجع الطبي';
+        sourcesBox.append(link);
+      });
+
+      if(sourcesBox.querySelector('a')) bubble.append(sourcesBox);
+    }
     box.append(bubble);
   });
   box.scrollTop = box.scrollHeight;
@@ -2737,21 +2765,33 @@ async function sendMedicalQuestion(){
   if(status){ status.hidden = false; status.className = 'status'; status.textContent = 'جاري إرسال السؤال للمساعد...'; }
   try{
     const imageData = medicalSelectedImage ? await readMedicalImage(medicalSelectedImage) : null;
-    // هذه الواجهة تنتظر إضافة medical_assistant إلى Worker في الخطوة التالية.
+    const medicalContext = [
+      prompt,
+      lectureTitle ? 'المحاضرة المختارة: ' + lectureTitle : '',
+      lectureText ? 'محتوى المحاضرة:\n' + lectureText.slice(0,30000) : ''
+    ].filter(Boolean).join('\n\n');
+
     const result = await cloudRequest('medical_assistant', {
-      message: prompt,
+      text: medicalContext || 'يرجى تحليل الصورة المرفقة وشرح ما يظهر فيها.',
+      track: selectedTrack,
+      language: document.getElementById('language')?.value || 'Arabic',
       lecture_title: lectureTitle,
       lecture_content: lectureText.slice(0,30000),
       image: imageData,
       conversation: medicalChatHistory.slice(-12).map(item => ({role:item.role,content:item.text}))
     });
-    const answer = result.answer || result.response || result.text || result.message;
+    const answer = result.answer || result.response || result.text || result.message || result.result;
     if(!answer) throw new Error('وصل رد غير مكتمل من الخادم.');
-    medicalChatHistory.push({role:'assistant',text:String(answer),at:Date.now()});
+    const assistantMessage = {role:'assistant',text:String(answer),at:Date.now()};
     if(Array.isArray(result.sources) && result.sources.length){
-      const sourceText = '\n\nالمراجع:\n' + result.sources.map((source,i) => (i+1)+'. '+(source.title || source.name || 'مرجع')+(source.url ? ' — '+source.url : '')).join('\n');
-      medicalChatHistory[medicalChatHistory.length-1].text += sourceText;
+      assistantMessage.sources = result.sources
+        .filter(source => source && typeof source.url === 'string' && /^https?:\/\//i.test(source.url))
+        .map(source => ({
+          title: String(source.title || source.name || 'مرجع طبي').slice(0,300),
+          url: source.url
+        }));
     }
+    medicalChatHistory.push(assistantMessage);
     saveMedicalHistory(); renderMedicalHistory();
     if(status){ status.className = 'status ok'; status.textContent = 'تم استلام الإجابة.'; }
     setMedicalImage(null);
